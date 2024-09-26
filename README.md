@@ -9,13 +9,16 @@
 # STRKFarm
 
 STRKFarm is a platform that allows users to better navigate DeFi on Starknet. It has the following features:  
+
 1. Show top yield generating pools sorted by Protocols and various Categories. 10+ Protocols are integrated. ✅
 2. Customized strategies, providing one-click investment with automated risk-management ✅ (Adding more)
 3. Concentrated Liquidity Impermanent calculator 🚧
 4. One click $STRK claim for DeFi spring users 🚧
 
 ## Project structure
+
 The project is build using NextJS and Typescript. Below is the broad project structure:  
+
 1. Re-usable project wide components go into `src/components`. Page specific components go into their respective folder. (e.g. `src/app/claims/components`)
 2. We use [Jotai](https://jotai.org/) for state management. Atoms are written in `src/store`. E.g. `src/store/strategies.atoms.ts`.
    Most re-usable data is written into atoms, outside components so that data is eaily accessible across components without dumping custom logic into components.
@@ -28,14 +31,17 @@ The project is build using NextJS and Typescript. Below is the broad project str
 
 [![Pull Requests welcome](https://img.shields.io/badge/PRs-welcome-ff69b4.svg?style=flat-square)](https://github.com/strkfarm/starkfarm-client/issues)
 Requirements:
+
 1. Node 20+
 
 Clone the repository
+
 ```bash
 git clone https://github.com/strkfarm/starkfarm-client.git
 ```
 
 Configure the environment. Ensure env file has necessary settings.
+
 ```
 cp .env.sample .env.local
 ```
@@ -62,20 +68,19 @@ You should see something like this:
 
 ## 🤝 Contribute
 
-
 We're always looking for for stallions with great NextJS & Typescript skills to further this tool, to join our community and contribute to STRKFarm. Check out our [contributing guide](./CONTRIBUTING.md)
 for more information on how to get started.
 
-To connect with us regarding any queries about contributing to the repo, feel free to join our telegram group [here](https://t.me/+HQ_eHaXmF-1lZDc1). Head to `dev` topic.
-
+To connect with us regarding any queries about contributing to the repo, feel free to join our telegram group [here](https://t.me/+kNCm2Q_kj7I1ZTll). Head to `dev` topic.
 
 ## References
 
-- [Telegram](https://t.me/+HQ_eHaXmF-1lZDc1)
+- [Telegram](https://t.me/+kNCm2Q_kj7I1ZTll)
 - [OnlyDust](https://app.onlydust.com/p/strkfarm)
 - [Website](https://www.strkfarm.xyz/)
 
 ## Contributors ✨
+
 Thanks goes to these wonderful people.
 
 <<<<<<< HEAD

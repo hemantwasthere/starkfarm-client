@@ -22,7 +22,7 @@ const CONSTANTS = {
   LENDING_INCENTIVES_URL:
     'https://kx58j6x5me.execute-api.us-east-1.amazonaws.com/starknet/fetchFile?file=prod-api/lending/lending_strk_grant.json',
   LOGOS,
-  COMMUNITY_TG: 'https://t.me/+HQ_eHaXmF-1lZDc1',
+  COMMUNITY_TG: 'https://t.me/+kNCm2Q_kj7I1ZTll',
   AUDIT_REPORT:
     'https://static-assets-8zct.onrender.com/strkfarm/audit_report.pdf',
   NOSTRA: {
