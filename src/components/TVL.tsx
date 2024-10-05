@@ -51,8 +51,10 @@ const TVL: React.FC = () => {
               $
               {isPending ? (
                 <Spinner size="sm" color="white" marginLeft={'5px'} />
+              ) : data && data?.tvl ? (
+                formattedTvlData(Number(data.tvl))
               ) : (
-                {data ? formattedTvlData(Number(data.tvl)) : '0'}
+                '0'
               )}
             </StatNumber>
           </Stat>
