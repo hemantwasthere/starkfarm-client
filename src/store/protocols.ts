@@ -5,10 +5,7 @@ import MySwapAtoms, { mySwap } from './myswap.store';
 import NostraDexAtoms, { nostraDex } from './nostradex.store';
 import NostraDegenAtoms, { nostraDegen } from './nostradegen.store';
 import NostraLendingAtoms, { nostraLending } from './nostralending.store';
-import SithswapAtoms, { sithswap } from './sithswap.store';
-import StarkDefiAtoms, { starkDefi } from './starkdefi.store';
 import VesuAtoms, { vesu } from './vesu.store';
-import TenkSwapAtoms, { tenkswap } from './tenkswap.store';
 import ZkLendAtoms, { zkLend } from './zklend.store';
 import CarmineAtoms, { carmine } from './carmine.store';
 import { atom } from 'jotai';
@@ -41,11 +38,11 @@ export const PROTOCOLS = [
     class: mySwap,
     atoms: MySwapAtoms,
   },
-  {
-    name: tenkswap.name,
-    class: tenkswap,
-    atoms: TenkSwapAtoms,
-  },
+  // {
+  //   name: tenkswap.name,
+  //   class: tenkswap,
+  //   atoms: TenkSwapAtoms,
+  // },
   {
     name: haiko.name,
     class: haiko,
@@ -66,16 +63,16 @@ export const PROTOCOLS = [
     class: carmine,
     atoms: CarmineAtoms,
   },
-  {
-    name: starkDefi.name,
-    class: starkDefi,
-    atoms: StarkDefiAtoms,
-  },
-  {
-    name: sithswap.name,
-    class: sithswap,
-    atoms: SithswapAtoms,
-  },
+  // {
+  //   name: starkDefi.name,
+  //   class: starkDefi,
+  //   atoms: StarkDefiAtoms,
+  // },
+  // {
+  //   name: sithswap.name,
+  //   class: sithswap,
+  //   atoms: SithswapAtoms,
+  // },
   {
     name: zkLend.name,
     class: zkLend,
@@ -213,39 +210,41 @@ export const allPoolsAtomWithStrategiesUnSorted = atom((get) => {
 
 // const allPoolsAtom = atom<PoolInfo[]>([]);
 
-const SORT_OPTIONS = ['DEFAULT', 'APR', 'TVL', 'RISK'];
+const SORT_OPTIONS = ['DEFAULT', 'APR', 'TVL', 'RISK'] as const;
 
-export const sortAtom = atom({
-  field: SORT_OPTIONS[0],
-  order: 'asc',
-});
+export const sortAtom = atom<Array<{ field: string; order: 'asc' | 'desc' }>>([
+  {
+    field: SORT_OPTIONS[0],
+    order: 'asc',
+  },
+]);
 
 export const sortPoolsAtom = atom((get) => {
+  const sort = get(sortAtom);
   const pools = get(allPoolsAtomWithStrategiesUnSorted);
-  console.log('pre sort', pools);
-  const sortSettings = get(sortAtom);
-  console.log('sorting', 'initiated');
-  pools.sort((a, b) => {
-    const sortOption = sortSettings.field;
-    const order = sortSettings.order;
-    if (sortOption === SORT_OPTIONS[2]) {
-      return order == 'desc' ? b.tvl - a.tvl : a.tvl - b.tvl;
-    } else if (sortOption === SORT_OPTIONS[3]) {
-      return order == 'desc'
-        ? b.additional.riskFactor - a.additional.riskFactor
-        : a.additional.riskFactor - b.additional.riskFactor;
-    } else if (sortOption === SORT_OPTIONS[1]) {
-      return order == 'desc' ? b.apr - a.apr : a.apr - b.apr;
+  const sortCriteria = [...sort].reverse();
+  const sortedPools = [...pools].sort((a, b) => {
+    for (const sortItem of sortCriteria) {
+      let result = 0;
+      if (sortItem.field === SORT_OPTIONS[1]) {
+        result = sortItem.order === 'asc' ? a.apr - b.apr : b.apr - a.apr;
+      } else if (sortItem.field === SORT_OPTIONS[2]) {
+        result = sortItem.order === 'asc' ? a.tvl - b.tvl : b.tvl - a.tvl;
+      } else if (sortItem.field === SORT_OPTIONS[3]) {
+        result =
+          sortItem.order === 'asc'
+            ? Math.round(a.additional.riskFactor) -
+              Math.round(b.additional.riskFactor)
+            : Math.round(b.additional.riskFactor) -
+              Math.round(a.additional.riskFactor);
+      }
+      if (result !== 0) return result;
     }
-    // sort by risk factor, then sort by apr
-    // rounding to sync with risk signals shown on UI
-    return (
-      Math.round(a.additional.riskFactor) -
-        Math.round(b.additional.riskFactor) || b.apr - a.apr
-    );
+    return 0;
   });
-  console.log('sorting', 'done');
-  return pools;
+  // localStorage.setItem('sort', JSON.stringify(sortCriteria));
+
+  return sortedPools;
 });
 
 export const filteredPools = atom((get) => {

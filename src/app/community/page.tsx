@@ -8,8 +8,8 @@ import { referralCodeAtom } from '@/store/referral.store';
 import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import {
-  useContractRead,
-  useContractWrite,
+  useReadContract,
+  useSendTransaction,
   useProvider,
 } from '@starknet-react/core';
 import { Contract } from 'starknet';
@@ -35,6 +35,7 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
+import fetchWithRetry from '@/utils/fetchWithRetry';
 
 interface OGNFTUserData {
   address: string;
@@ -50,8 +51,13 @@ const isOGNFTEligibleAtom = atomWithQuery((get) => {
     queryFn: async ({ _queryKey }: any): Promise<OGNFTUserData | null> => {
       const address = get(addressAtom) || '0x0';
       if (!address) return null;
-      const data = await fetch(`/api/users/ognft/${address}`);
-      return data.json();
+      const data = await fetchWithRetry(
+        `/api/users/ognft/${address}`,
+        {},
+        'Error fetching OG NFT eligibility',
+      );
+      if (!data) return null;
+      return await data.json();
     },
     refetchInterval: 5000,
   };
@@ -86,11 +92,11 @@ const CommunityPage = () => {
   );
 
   const {
-    writeAsync: claimOGNFT,
+    sendAsync: claimOGNFT,
     isPending: isClaimOGNFTPending,
     isError: isClaimOGNFTError,
     error: claimOGTError,
-  } = useContractWrite({
+  } = useSendTransaction({
     calls: [
       ogNFTContract.populate('mint', {
         nftId: 1,
@@ -101,9 +107,11 @@ const CommunityPage = () => {
     ],
   });
 
-  const { data: ogNFTBalance, status: balanceQueryStatus } = useContractRead({
+  const ogNFTAddr: `0x${string}` = (process.env.NEXT_PUBLIC_OG_NFT_CONTRACT ||
+    '0x0') as `0x${string}`;
+  const { data: ogNFTBalance, status: balanceQueryStatus } = useReadContract({
     abi: NFTAbi,
-    address: process.env.NEXT_PUBLIC_OG_NFT_CONTRACT || '0',
+    address: ogNFTAddr,
     functionName: 'balanceOf',
     args: [address || '0x0', 1],
   });
