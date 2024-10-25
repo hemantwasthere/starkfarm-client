@@ -2,7 +2,9 @@ import { NextResponse } from 'next/server';
 
 import { db } from '@/db';
 
-export async function POST() {
+export const dynamic = 'force-dynamic'; // static by default, unless reading the request
+
+export async function GET() {
   try {
     // Select a random raffle participant
     const randomRaffleParticipant = await db.raffle.findFirst({

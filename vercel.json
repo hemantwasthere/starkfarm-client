@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/raffle/luckyWinner",
-      "schedule": "48 19 * * *"
+      "schedule": "51 19 * * *"
     }
   ]
 }
