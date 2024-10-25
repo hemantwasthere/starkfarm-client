@@ -25,7 +25,7 @@ const Raffle: NextPage = () => {
           src="/raffle-hero.svg"
           width={385}
           height={247}
-          alt="Raffle Hero"
+          alt="Raffle Hero Image"
         />
       </div>
 
