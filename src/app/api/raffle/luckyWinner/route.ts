@@ -76,6 +76,8 @@ export async function GET() {
       },
     });
 
+    console.log(newLuckyWinner);
+
     return NextResponse.json({
       success: true,
       message: 'Lucky winner selected successfully',
