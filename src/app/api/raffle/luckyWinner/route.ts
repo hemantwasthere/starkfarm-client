@@ -48,9 +48,9 @@ export async function GET() {
       }
 
       // Check if the selected participant is already a lucky winner
-      const existingWinner = await db.luckyWinner.findUnique({
+      const existingWinner = await db.luckyWinner.findFirst({
         where: {
-          winnerAddress: randomRaffleParticipant.raffleAddress,
+          raffleId: randomRaffleParticipant.raffleId,
         },
       });
 
@@ -70,7 +70,6 @@ export async function GET() {
     // Add the selected user to the LuckyWinner table
     const newLuckyWinner = await db.luckyWinner.create({
       data: {
-        winnerAddress: randomRaffleParticipant.raffleAddress,
         userId: randomRaffleParticipant.userId,
         raffleId: randomRaffleParticipant.raffleId,
       },

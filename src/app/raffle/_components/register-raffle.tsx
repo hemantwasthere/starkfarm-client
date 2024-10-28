@@ -17,8 +17,9 @@ const RegisterRaffle: React.FC = () => {
     if (isUserRegistered) return;
 
     try {
-      const res = await axios.post('/api/raffle/registerUser', {
+      const res = await axios.post('/api/raffle', {
         address,
+        type: 'REGISTER',
       });
       if (res?.data?.success) {
         setIsUserRegistered(true);
@@ -39,7 +40,9 @@ const RegisterRaffle: React.FC = () => {
 
     (async () => {
       try {
-        const res = await axios.get(`/api/raffle/getUser/${address}`);
+        const res = await axios.get(`/api/tnc/getUser/${address}`, {
+          params: { type: 'RAFFLE' },
+        });
 
         if (res?.data?.success && res?.data?.user?.isRaffleParticipant) {
           setIsUserRegistered(true);

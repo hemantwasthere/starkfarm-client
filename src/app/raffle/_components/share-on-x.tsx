@@ -18,8 +18,9 @@ const ShareOnX = () => {
     setLoading(true);
 
     try {
-      const res = await axios.post('/api/raffle/sharedOnX', {
+      const res = await axios.post('/api/raffle', {
         address,
+        type: 'SHARED_ON_X',
       });
 
       if (res?.data?.success) {
@@ -40,7 +41,9 @@ const ShareOnX = () => {
 
     (async () => {
       try {
-        const res = await axios.get(`/api/raffle/getUser/${address}`);
+        const res = await axios.get(`/api/tnc/getUser/${address}`, {
+          params: { type: 'RAFFLE' },
+        });
 
         if (res?.data?.success && res?.data?.user?.sharedOnX) {
           setIsSharedOnX(true);
