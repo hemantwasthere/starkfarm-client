@@ -3,7 +3,14 @@ import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic'; // static by default, unless reading the request
 
-export async function GET() {
+export async function GET(request: Request) {
+  const authHeader = request.headers.get('authorization');
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return new Response('Unauthorized', {
+      status: 401,
+    });
+  }
+
   try {
     // Fetch all raffle participants
     const raffleParticipants = await db.raffle.findMany({
