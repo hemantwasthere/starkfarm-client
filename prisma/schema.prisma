@@ -26,7 +26,8 @@ model User {
 }
 
 model Raffle {
-  raffleId            Int      @id @default(autoincrement())
+  raffleId Int @id @default(autoincrement())
+
   isRaffleParticipant Boolean? @default(false)
   sharedOnX           Boolean? @default(false)
   activeDeposits      Boolean? @default(false)
@@ -44,6 +45,7 @@ model Raffle {
 
 model LuckyWinner {
   winnerId Int @id @default(autoincrement())
+  roundId  Int @default(autoincrement())
 
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())

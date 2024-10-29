@@ -11,8 +11,17 @@ export async function GET(request: Request) {
     });
   }
 
+  const { searchParams } = new URL(request.url);
+  const noOfWinners = parseInt(searchParams.get('winnersCount') || '0', 10);
+
+  if (noOfWinners <= 0) {
+    return NextResponse.json({
+      success: false,
+      message: 'Invalid number of winners requested',
+    });
+  }
+
   try {
-    // Fetch all raffle participants
     const raffleParticipants = await db.raffle.findMany({
       where: {
         OR: [
@@ -31,9 +40,9 @@ export async function GET(request: Request) {
     }
 
     // Group participants by ticket count
-    const threeTicketParticipants: any = [];
-    const twoTicketParticipants: any = [];
-    const oneTicketParticipants: any = [];
+    const threeTicketParticipants: any[] = [];
+    const twoTicketParticipants: any[] = [];
+    const oneTicketParticipants: any[] = [];
 
     raffleParticipants.forEach((participant) => {
       let ticketCount = 0;
@@ -52,78 +61,78 @@ export async function GET(request: Request) {
       }
     });
 
-    let selectedParticipant;
-    let foundValidParticipant = false;
-
-    // Attempt to select a valid participant, prioritizing higher ticket groups
     const groups = [
       threeTicketParticipants,
       twoTicketParticipants,
       oneTicketParticipants,
     ];
+    const luckyWinners = [];
 
-    for (const group of groups) {
-      if (group.length === 0) {
-        continue; // Move to the next group if the current one is empty
-      }
+    // Continue selecting winners until we reach the desired count
+    while (luckyWinners.length < noOfWinners) {
+      let selectedParticipant = null;
+      let foundValidParticipant = false;
 
-      // Keep searching within the current group until a valid participant is found
-      while (!foundValidParticipant && group.length > 0) {
-        // Randomly select a participant from the current group
-        const randomIndex = Math.floor(Math.random() * group.length);
-        selectedParticipant = group[randomIndex];
+      // Try to find a participant from each group in order
+      for (const group of groups) {
+        if (group.length === 0) continue;
 
-        // Check if the selected participant is already a lucky winner
-        const existingWinner = await db.luckyWinner.findFirst({
-          where: {
-            raffleId: selectedParticipant.raffleId,
-          },
-        });
+        // Keep searching within the current group until a valid participant is found
+        while (group.length > 0) {
+          const randomIndex = Math.floor(Math.random() * group.length);
+          selectedParticipant = group[randomIndex];
 
-        // If not already a winner, break the loop
-        if (!existingWinner) {
-          foundValidParticipant = true;
-          break;
-        } else {
-          // If the selected participant is already a winner, remove them from the group
-          group.splice(randomIndex, 1);
+          const existingWinner = await db.luckyWinner.findFirst({
+            where: { raffleId: selectedParticipant.raffleId },
+          });
+
+          if (!existingWinner) {
+            foundValidParticipant = true;
+            luckyWinners.push(selectedParticipant);
+            group.splice(randomIndex, 1); // Remove selected participant from the group
+            break;
+          } else {
+            group.splice(randomIndex, 1); // Remove duplicate winner
+          }
         }
+
+        if (foundValidParticipant) break;
       }
 
-      // If a valid participant has been found, exit the loop
-      if (foundValidParticipant) {
-        break;
-      }
+      // If no eligible participants found in any group, break the loop
+      if (!foundValidParticipant) break;
     }
 
-    // If no valid participant was found after checking all groups
-    if (!foundValidParticipant) {
+    // Check if we were able to select enough winners
+    if (luckyWinners.length < noOfWinners) {
       return NextResponse.json({
         success: false,
-        message: 'No eligible raffle participants found',
+        message: 'Not enough eligible raffle participants found',
       });
     }
 
-    // Add the selected user to the LuckyWinner table
-    const newLuckyWinner = await db.luckyWinner.create({
-      data: {
-        userId: selectedParticipant.userId,
-        raffleId: selectedParticipant.raffleId,
-      },
-    });
-
-    console.log(newLuckyWinner);
+    // Add selected users to the LuckyWinner table
+    const newLuckyWinners = await Promise.all(
+      luckyWinners.map((winner) =>
+        db.luckyWinner.create({
+          data: {
+            userId: winner.userId,
+            raffleId: winner.raffleId,
+          },
+        }),
+      ),
+    );
 
     return NextResponse.json({
       success: true,
-      message: 'Lucky winner selected successfully',
-      luckyWinner: newLuckyWinner,
+      message: 'Lucky winners selected successfully',
+      luckyWinners: newLuckyWinners,
     });
   } catch (error) {
-    console.error('Error selecting a lucky winner:', error);
+    console.error('Error selecting lucky winners:', error);
     return NextResponse.json({
       success: false,
-      message: 'An error occurred while selecting a lucky winner',
+      message: 'An error occurred while selecting lucky winners',
     });
   }
 }

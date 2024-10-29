@@ -1,7 +1,7 @@
 {
   "crons": [
     {
-      "path": "/api/raffle/luckyWinner",
+      "path": "/api/raffle/luckyWinner?winnersCount=2",
       "schedule": "33 20 * * *"
     }
   ]
