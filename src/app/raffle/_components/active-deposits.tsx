@@ -4,29 +4,27 @@ import { Spinner } from '@chakra-ui/react';
 import { useAccount } from '@starknet-react/core';
 import axios from 'axios';
 import Image from 'next/image';
-import Link from 'next/link';
 import React from 'react';
 import toast from 'react-hot-toast';
 
-const ShareOnX = () => {
+const ActiveDeposits = () => {
   const { address } = useAccount();
 
   const [loading, setLoading] = React.useState(false);
   const [initialLoading, setInitialLoading] = React.useState(false);
-  const [isSharedOnX, setIsSharedOnX] = React.useState(false);
+  const [isActiveDeposits, setIsActiveDeposits] = React.useState(false);
 
-  const handleShare = async () => {
+  const handleActiveDeposits = async () => {
     setLoading(true);
 
     try {
       const res = await axios.post('/api/raffle', {
         address,
-        type: 'SHARED_ON_X',
+        type: 'ACTIVE_DEPOSITS',
       });
 
       if (res?.data?.success) {
-        await new Promise((resolve) => setTimeout(resolve, 8000));
-        setIsSharedOnX(true);
+        setIsActiveDeposits(true);
         toast.success('Successfully completed!');
       }
     } catch (error) {
@@ -39,7 +37,6 @@ const ShareOnX = () => {
 
   React.useEffect(() => {
     if (!address) return;
-
     setInitialLoading(true);
 
     (async () => {
@@ -48,9 +45,9 @@ const ShareOnX = () => {
           params: { type: 'RAFFLE' },
         });
 
-        if (res?.data?.success && res?.data?.user?.sharedOnX) {
-          setIsSharedOnX(true);
-        } else setIsSharedOnX(false);
+        if (res?.data?.success && res?.data?.user?.activeDeposits) {
+          setIsActiveDeposits(true);
+        } else setIsActiveDeposits(false);
       } catch (error) {
         console.error(error);
         toast.error('Something went wrong');
@@ -70,25 +67,29 @@ const ShareOnX = () => {
             height={64}
             alt="STRKFarm"
           />
-          <p className="text-[#61FCAE] text-xl font-medium group-hover:text-black">
-            RT our tweet
+          <p className="text-[#61FCAE] group-hover:text-black text-xl font-medium">
+            Claim your ticket if you have a active deposit
           </p>
         </div>
 
-        <Link
-          href="https://hemant.lol"
-          target="_blank"
-          className="border border-[#36E780] group-hover:border-black text-white px-4 py-1 text-sm font-bold rounded-[20px] transition-all active:scale-90 group-hover:text-black"
-          onClick={!isSharedOnX && !initialLoading ? handleShare : () => {}}
+        <button
+          className="border border-[#36E780] group-hover:border-black group-hover:text-black text-white px-4 py-1 text-sm font-bold rounded-[20px] transition-all active:scale-90"
+          onClick={
+            !isActiveDeposits && !initialLoading
+              ? handleActiveDeposits
+              : () => {}
+          }
         >
-          {loading && <Spinner color="#61FCAE" mr={2} size="xs" />}
+          {loading && !isActiveDeposits && (
+            <Spinner color="#61FCAE" mr={2} size="xs" />
+          )}
           {initialLoading && 'loading...'}
-          {isSharedOnX && 'completed'}
-          {!isSharedOnX && !initialLoading && '1 ticket'}
-        </Link>
+          {isActiveDeposits && 'completed'}
+          {!isActiveDeposits && !initialLoading && '1 ticket'}
+        </button>
       </div>
     </div>
   );
 };
 
-export default ShareOnX;
+export default ActiveDeposits;
