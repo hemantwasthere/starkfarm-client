@@ -37,7 +37,7 @@ const Raffle: NextPage = () => {
       <div className="mt-12 rounded-md bg-gradient-to-r from-[#2f285c] to-[#2b5d4a] p-0.5">
         <div className="flex flex-col-reverse lg:flex-row gap-4 lg:gap-0 items-center justify-between bg-gradient-to-r from-[#181d29] to-[#172428] h-full rounded-md px-6 py-3">
           <p className="text-[#95F3BD] font-semibold text-base text-center lg:text-xl">
-            Earn Raffle tickets for every task and get chances to win
+            Earn Raffle tickets for every task and increase chances to win
           </p>
 
           <div className="flex flex-col items-center gap-2 text-white lg:mr-14">
