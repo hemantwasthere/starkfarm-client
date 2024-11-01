@@ -45,6 +45,20 @@ export async function POST(req: Request) {
   }
 
   if (type === 'REGISTER') {
+    const raffleUser = await db.raffle.findFirst({
+      where: {
+        userId: user.id,
+      },
+    });
+
+    if (raffleUser) {
+      return NextResponse.json({
+        success: false,
+        message: 'User already registered',
+        user: raffleUser,
+      });
+    }
+
     const createdUser = await db.raffle.create({
       data: {
         isRaffleParticipant: true,
@@ -117,7 +131,7 @@ export async function POST(req: Request) {
     const result = await Promise.all(values);
     const sum = result.reduce((acc, item) => acc + item.usdValue, 0);
 
-    if (sum > 0) {
+    if (sum > 10) {
       const createdUser = await db.raffle.update({
         where: {
           raffleId: raffleUser.raffleId,

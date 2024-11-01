@@ -26,6 +26,11 @@ const ActiveDeposits = () => {
       if (res?.data?.success) {
         setIsActiveDeposits(true);
         toast.success('Successfully completed!');
+      } else if (
+        !res?.data?.success &&
+        res?.data?.message === 'No active deposits found'
+      ) {
+        toast.error('You should have atleast $10 deposited in STRKFarm');
       }
     } catch (error) {
       console.error(error);
@@ -37,7 +42,9 @@ const ActiveDeposits = () => {
 
   React.useEffect(() => {
     if (!address) return;
+
     setInitialLoading(true);
+    setIsActiveDeposits(false);
 
     (async () => {
       try {
@@ -59,21 +66,21 @@ const ActiveDeposits = () => {
 
   return (
     <div className="rounded-md bg-gradient-to-r from-[#322663] to-[#306652] p-0.5">
-      <div className="flex items-center justify-between bg-gradient-to-r from-[#1c1b32] to-[#1e3031] h-full rounded-md px-4 hover:from-[#60fcad] transition-all  hover:to-[#60fcad] group">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col lg:flex-row items-start lg:items-center py-3 lg:py-0 gap-3 lg:gap-0 justify-between bg-gradient-to-r from-[#1c1b32] to-[#1e3031] h-full rounded-md px-4 hover:from-[#60fcad] transition-all  hover:to-[#60fcad] group">
+        <div className="flex items-center gap-0 lg:gap-3">
           <Image
-            src="/strkfarm-white.svg"
+            src="/raffle-deposits.svg"
             width={64}
             height={64}
             alt="STRKFarm"
           />
-          <p className="text-[#61FCAE] group-hover:text-black text-xl font-medium">
-            Claim your ticket if you have a active deposit
+          <p className="text-[#61FCAE] group-hover:text-black text-sm lg:text-xl font-medium">
+            Deposit atleast $10 in STRKFarm
           </p>
         </div>
 
         <button
-          className="border border-[#36E780] group-hover:border-black group-hover:text-black text-white px-4 py-1 text-sm font-bold rounded-[20px] transition-all active:scale-90"
+          className="border border-[#36E780] text-white group-hover:border-black group-hover:text-black px-4 py-1 text-sm font-bold rounded-[20px] transition-all active:scale-90 ml-16 lg:ml-0"
           onClick={
             !isActiveDeposits && !initialLoading
               ? handleActiveDeposits
@@ -81,7 +88,11 @@ const ActiveDeposits = () => {
           }
         >
           {loading && !isActiveDeposits && (
-            <Spinner color="#61FCAE" mr={2} size="xs" />
+            <Spinner
+              mr={2}
+              size="xs"
+              className="text-[#61FCAE] group-hover:text-black"
+            />
           )}
           {initialLoading && 'loading...'}
           {isActiveDeposits && 'completed'}

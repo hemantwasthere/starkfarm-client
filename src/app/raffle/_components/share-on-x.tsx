@@ -41,6 +41,7 @@ const ShareOnX = () => {
     if (!address) return;
 
     setInitialLoading(true);
+    setIsSharedOnX(false);
 
     (async () => {
       try {
@@ -62,15 +63,15 @@ const ShareOnX = () => {
 
   return (
     <div className="rounded-md bg-gradient-to-r from-[#322663] to-[#306652] p-0.5">
-      <div className="flex items-center justify-between bg-gradient-to-r from-[#1c1b32] to-[#1e3031] h-full rounded-md px-4 hover:from-[#60fcad] transition-all  hover:to-[#60fcad] group">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col lg:flex-row items-start lg:items-center py-3 lg:py-0 justify-between bg-gradient-to-r from-[#1c1b32] to-[#1e3031] h-full rounded-md px-4 hover:from-[#60fcad] transition-all  hover:to-[#60fcad] group">
+        <div className="flex items-center gap-0 lg:gap-3">
           <Image
-            src="/strkfarm-white.svg"
+            src="/raffle-share.svg"
             width={64}
             height={64}
             alt="STRKFarm"
           />
-          <p className="text-[#61FCAE] text-xl font-medium group-hover:text-black">
+          <p className="text-[#61FCAE] text-sm lg:text-xl font-medium group-hover:text-black">
             RT our tweet
           </p>
         </div>
@@ -78,10 +79,16 @@ const ShareOnX = () => {
         <Link
           href="https://hemant.lol"
           target="_blank"
-          className="border border-[#36E780] group-hover:border-black text-white px-4 py-1 text-sm font-bold rounded-[20px] transition-all active:scale-90 group-hover:text-black"
+          className="border border-[#36E780] text-white group-hover:border-black group-hover:text-black px-4 py-1 text-sm font-bold rounded-[20px] transition-all active:scale-90 ml-16 lg:ml-0 -mt-3"
           onClick={!isSharedOnX && !initialLoading ? handleShare : () => {}}
         >
-          {loading && <Spinner color="#61FCAE" mr={2} size="xs" />}
+          {loading && (
+            <Spinner
+              mr={2}
+              size="xs"
+              className="text-[#61FCAE] group-hover:text-black"
+            />
+          )}
           {initialLoading && 'loading...'}
           {isSharedOnX && 'completed'}
           {!isSharedOnX && !initialLoading && '1 ticket'}
