@@ -26,11 +26,15 @@ const RegisterRaffle: React.FC = () => {
       });
       if (res?.data?.success) {
         setIsUserRegistered(true);
-        toast.success('Successfully completed!');
+        toast.success('Successfully completed!', {
+          position: 'bottom-right',
+        });
       }
     } catch (error) {
       console.error(error);
-      toast.error('Something went wrong');
+      toast.error('Something went wrong', {
+        position: 'bottom-right',
+      });
     } finally {
       setLoading(false);
     }
@@ -55,7 +59,9 @@ const RegisterRaffle: React.FC = () => {
         } else setIsUserRegistered(false);
       } catch (error) {
         console.error(error);
-        toast.error('Something went wrong');
+        toast.error('Something went wrong', {
+          position: 'bottom-right',
+        });
       } finally {
         setInitialLoading(false);
       }

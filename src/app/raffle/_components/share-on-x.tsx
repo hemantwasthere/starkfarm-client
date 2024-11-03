@@ -27,11 +27,15 @@ const ShareOnX = () => {
       if (res?.data?.success) {
         await new Promise((resolve) => setTimeout(resolve, 8000));
         setIsSharedOnX(true);
-        toast.success('Successfully completed!');
+        toast.success('Successfully completed!', {
+          position: 'bottom-right',
+        });
       }
     } catch (error) {
       console.error(error);
-      toast.error('Something went wrong');
+      toast.error('Something went wrong', {
+        position: 'bottom-right',
+      });
     } finally {
       setLoading(false);
     }

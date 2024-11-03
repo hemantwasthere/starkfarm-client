@@ -1,4 +1,5 @@
 import { db } from '@/db';
+import { Raffle } from '@prisma/client';
 import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic'; // static by default, unless reading the request
@@ -12,7 +13,8 @@ export async function GET(request: Request) {
   }
 
   const { searchParams } = new URL(request.url);
-  const noOfWinners = parseInt(searchParams.get('winnersCount') || '0', 10);
+  let noOfWinners = parseInt(searchParams.get('winnersCount') || '0', 10);
+  console.log('No of winners requested:', noOfWinners);
 
   if (noOfWinners <= 0) {
     return NextResponse.json({
@@ -39,89 +41,96 @@ export async function GET(request: Request) {
       });
     }
 
-    // Group participants by ticket count
-    const threeTicketParticipants: any[] = [];
-    const twoTicketParticipants: any[] = [];
-    const oneTicketParticipants: any[] = [];
+    console.log('Total raffle participants:', raffleParticipants.length);
 
+    const totalExistingWinners = await db.luckyWinner.findMany({
+      select: {
+        userId: true,
+      },
+    });
+    if (totalExistingWinners.length == raffleParticipants.length) {
+      return NextResponse.json({
+        success: false,
+        message: 'No new participants found',
+      });
+    }
+
+    // index to ticket owner map
+    const ticketOwners: Raffle[] = [];
+
+    let uniqueUsersCount = 0;
     raffleParticipants.forEach((participant) => {
-      let ticketCount = 0;
+      const exists = totalExistingWinners.find(
+        (winner) => winner.userId === participant.userId,
+      );
+      if (exists) return;
 
-      if (participant.isRaffleParticipant) ticketCount += 1;
-      if (participant.sharedOnX) ticketCount += 1;
-      if (participant.activeDeposits) ticketCount += 1;
-
-      // Add the participant to the corresponding group based on their ticket count
-      if (ticketCount === 3) {
-        threeTicketParticipants.push(participant);
-      } else if (ticketCount === 2) {
-        twoTicketParticipants.push(participant);
-      } else if (ticketCount === 1) {
-        oneTicketParticipants.push(participant);
+      uniqueUsersCount++;
+      if (participant.isRaffleParticipant) {
+        ticketOwners.push(participant);
+      }
+      if (participant.sharedOnX) {
+        ticketOwners.push(participant);
+      }
+      if (participant.activeDeposits) {
+        ticketOwners.push(participant);
       }
     });
 
-    const groups = [
-      threeTicketParticipants,
-      twoTicketParticipants,
-      oneTicketParticipants,
-    ];
-    const luckyWinners = [];
+    if (uniqueUsersCount < noOfWinners) {
+      noOfWinners = uniqueUsersCount;
+    }
+
+    if (noOfWinners === 0) {
+      return NextResponse.json({
+        success: false,
+        message: 'No winners to select',
+      });
+    }
+
+    const luckyWinners: Raffle[] = [];
 
     // Continue selecting winners until we reach the desired count
     while (luckyWinners.length < noOfWinners) {
-      let selectedParticipant = null;
-      let foundValidParticipant = false;
-
       // Try to find a participant from each group in order
-      for (const group of groups) {
-        if (group.length === 0) continue;
+      if (ticketOwners.length === 0) continue;
 
-        // Keep searching within the current group until a valid participant is found
-        while (group.length > 0) {
-          const randomIndex = Math.floor(Math.random() * group.length);
-          selectedParticipant = group[randomIndex];
+      // Keep searching within the current group until a valid participant is found
+      const randomIndex = Math.floor(Math.random() * ticketOwners.length);
+      const selectedParticipant = ticketOwners[randomIndex];
 
-          const existingWinner = await db.luckyWinner.findFirst({
-            where: { raffleId: selectedParticipant.raffleId },
-          });
+      // assert selectedParticipant is not already a winner
+      const exists = luckyWinners.find(
+        (winner) => winner.userId === selectedParticipant.userId,
+      );
+      if (exists) continue;
 
-          if (!existingWinner) {
-            foundValidParticipant = true;
-            luckyWinners.push(selectedParticipant);
-            group.splice(randomIndex, 1); // Remove selected participant from the group
-            break;
-          } else {
-            group.splice(randomIndex, 1); // Remove duplicate winner
-          }
-        }
-
-        if (foundValidParticipant) break;
-      }
-
-      // If no eligible participants found in any group, break the loop
-      if (!foundValidParticipant) break;
+      luckyWinners.push(selectedParticipant);
     }
 
     // Check if we were able to select enough winners
-    if (luckyWinners.length < noOfWinners) {
+    if (luckyWinners.length == 0) {
       return NextResponse.json({
         success: false,
-        message: 'Not enough eligible raffle participants found',
+        message: 'No winner found',
       });
     }
 
     // Add selected users to the LuckyWinner table
-    const newLuckyWinners = await Promise.all(
-      luckyWinners.map((winner) =>
-        db.luckyWinner.create({
-          data: {
-            userId: winner.userId,
-            raffleId: winner.raffleId,
-          },
-        }),
-      ),
-    );
+    const maxRoundIdInfo = await db.luckyWinner.findFirst({
+      select: { roundId: true },
+      orderBy: { roundId: 'desc' },
+    });
+    const maxRoundId = maxRoundIdInfo ? maxRoundIdInfo.roundId : 0;
+    const newLuckyWinners = await db.luckyWinner.createMany({
+      data: luckyWinners.map((userId) => ({
+        roundId: maxRoundId + 1,
+        raffleId: userId.raffleId,
+        userId: userId.userId,
+      })),
+    });
+
+    console.log('Lucky winners selected successfully:', newLuckyWinners);
 
     return NextResponse.json({
       success: true,
