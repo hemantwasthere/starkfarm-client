@@ -306,7 +306,7 @@ export default function Navbar(props: NavbarProps) {
                 mixpanel.track('home_clicked');
               }}
             >
-              🚀 {'  '}Raffle
+              🕹 {'  '}Raffle
             </Button>
           </Link>
           <Link href="/community" margin="0 10px 0 0">
@@ -318,6 +318,7 @@ export default function Navbar(props: NavbarProps) {
               _hover={{
                 bg: 'color2_50p',
               }}
+              px="10px"
               display={{ base: 'none !important', lg: 'flex !important' }}
               onClick={() => {
                 mixpanel.track('community_program_click');
@@ -465,6 +466,9 @@ export default function Navbar(props: NavbarProps) {
                 <Flex direction="column">
                   <Link href="/" color="color1_light" onClick={onClose}>
                     Home
+                  </Link>
+                  <Link href="/raffle" color="color1_light" onClick={onClose}>
+                    🕹 {'  '}Raffle
                   </Link>
                   <Link
                     href="/community"

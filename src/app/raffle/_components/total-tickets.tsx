@@ -38,7 +38,9 @@ const TotalTickets: React.FC = () => {
         }
       } catch (error) {
         console.error(error);
-        toast.error('Something went wrong');
+        toast.error('Something went wrong', {
+          position: 'bottom-right',
+        });
       } finally {
         setLoading(false);
       }

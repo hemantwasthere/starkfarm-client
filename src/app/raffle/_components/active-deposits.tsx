@@ -25,16 +25,22 @@ const ActiveDeposits = () => {
 
       if (res?.data?.success) {
         setIsActiveDeposits(true);
-        toast.success('Successfully completed!');
+        toast.success('Successfully completed!', {
+          position: 'bottom-right',
+        });
       } else if (
         !res?.data?.success &&
         res?.data?.message === 'No active deposits found'
       ) {
-        toast.error('You should have atleast $10 deposited in STRKFarm');
+        toast.error('You should have atleast $10 deposited in STRKFarm', {
+          position: 'bottom-right',
+        });
       }
     } catch (error) {
       console.error(error);
-      toast.error('Something went wrong');
+      toast.error('Something went wrong', {
+        position: 'bottom-right',
+      });
     } finally {
       setLoading(false);
     }
@@ -57,7 +63,9 @@ const ActiveDeposits = () => {
         } else setIsActiveDeposits(false);
       } catch (error) {
         console.error(error);
-        toast.error('Something went wrong');
+        toast.error('Something went wrong', {
+          position: 'bottom-right',
+        });
       } finally {
         setInitialLoading(false);
       }

@@ -36,11 +36,9 @@ model Raffle {
   updatedAt DateTime @default(now()) @updatedAt
 
   User   User @relation(fields: [userId], references: [id])
-  userId Int
+  userId Int  @unique
 
   LuckyWinner LuckyWinner[]
-
-  @@unique([userId, raffleId], name: "unique_raffle")
 }
 
 model LuckyWinner {
@@ -54,9 +52,7 @@ model LuckyWinner {
   raffleId Int
 
   User   User @relation(fields: [userId], references: [id])
-  userId Int
-
-  @@unique([userId, winnerId], name: "unique_lucky_winner")
+  userId Int  @unique
 }
 
 model Signatures {
