@@ -1,5 +1,13 @@
+import shield from '@/assets/shield.svg';
 import CONSTANTS from '@/constants';
+import { addressAtom } from '@/store/claims.atoms';
 import { PoolInfo } from '@/store/pools';
+import { getPoolInfoFromStrategy, sortAtom } from '@/store/protocols';
+import { STRKFarmStrategyAPIResult } from '@/store/strkfarm.atoms';
+import { UserStats, userStatsAtom } from '@/store/utils.atoms';
+import { StrategyLiveStatus } from '@/strategies/IStrategy';
+import { getDisplayCurrencyAmount } from '@/utils';
+import { TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
 import {
   Avatar,
   AvatarGroup,
@@ -21,17 +29,9 @@ import {
   Tr,
   VStack,
 } from '@chakra-ui/react';
-import shield from '@/assets/shield.svg';
-import { StrategyLiveStatus } from '@/strategies/IStrategy';
 import { useAtomValue } from 'jotai';
-import { getDisplayCurrencyAmount } from '@/utils';
-import { addressAtom } from '@/store/claims.atoms';
-import { FaWallet } from 'react-icons/fa';
-import { UserStats, userStatsAtom } from '@/store/utils.atoms';
-import { getPoolInfoFromStrategy, sortAtom } from '@/store/protocols';
-import { TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
 import mixpanel from 'mixpanel-browser';
-import { STRKFarmStrategyAPIResult } from '@/store/strkfarm.atoms';
+import { FaWallet } from 'react-icons/fa';
 
 interface YieldCardProps {
   pool: PoolInfo;
