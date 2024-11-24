@@ -1,23 +1,28 @@
+import strkfarmLogo from '@public/logo.png';
+import { atom } from 'jotai';
+import CarmineAtoms, { carmine } from './carmine.store';
 import EkuboAtoms, { ekubo } from './ekobu.store';
 import HaikoAtoms, { haiko } from './haiko.store';
 import HashstackAtoms, { hashstack } from './hashstack.store';
 import MySwapAtoms, { mySwap } from './myswap.store';
-import NostraDexAtoms, { nostraDex } from './nostradex.store';
 import NostraDegenAtoms, { nostraDegen } from './nostradegen.store';
+import NostraDexAtoms, { nostraDex } from './nostradex.store';
 import NostraLendingAtoms, { nostraLending } from './nostralending.store';
-import VesuAtoms, { vesu } from './vesu.store';
-import ZkLendAtoms, { zkLend } from './zklend.store';
-import CarmineAtoms, { carmine } from './carmine.store';
-import { atom } from 'jotai';
 import { Category, PoolInfo, PoolType } from './pools';
-import strkfarmLogo from '@public/logo.png';
+import { getLiveStatusEnum } from './strategies.atoms';
 import STRKFarmAtoms, {
   strkfarm,
   STRKFarmStrategyAPIResult,
 } from './strkfarm.atoms';
-import { getLiveStatusEnum } from './strategies.atoms';
+import VesuAtoms, { vesu } from './vesu.store';
+import ZkLendAtoms, { zkLend } from './zklend.store';
 
 export const PROTOCOLS = [
+  // {
+  //   name: endur.name,
+  //   class: endur,
+  //   atoms: EndurAtoms,
+  // },
   {
     name: strkfarm.name,
     class: strkfarm,
@@ -106,11 +111,12 @@ const allProtocols = PROTOCOLS.map((p) => ({
   name: p.name,
   logo: p.class.logo,
 }));
+
 export const filters = {
   categories: [...Object.values(Category)],
   types: [...Object.values(PoolType)],
   protocols: allProtocols.filter(
-    (p, index) => allProtocols.findIndex((_p) => _p.name == p.name) == index,
+    (p, index) => allProtocols.findIndex((_p) => _p.name === p.name) === index,
   ),
 };
 
