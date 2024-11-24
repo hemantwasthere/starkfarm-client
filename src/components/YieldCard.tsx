@@ -31,7 +31,8 @@ import {
 } from '@chakra-ui/react';
 import { useAtomValue } from 'jotai';
 import mixpanel from 'mixpanel-browser';
-import { FaWallet } from 'react-icons/fa';
+import { STRKFarmStrategyAPIResult } from '@/store/strkfarm.atoms';
+import { isMobile } from 'react-device-detect';
 
 interface YieldCardProps {
   pool: PoolInfo;
@@ -468,7 +469,7 @@ function StrategyMobileCard(props: YieldCardProps) {
 function getLinkProps(pool: PoolInfo, showProtocolName?: boolean) {
   return {
     href: pool.protocol.link,
-    target: '_blank',
+    target: isMobile ? '_self' : '_blank',
     onClick: () => {
       mixpanel.track('Pool clicked', {
         pool: pool.pool.name,
