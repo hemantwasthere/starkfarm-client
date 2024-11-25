@@ -16,13 +16,14 @@ import STRKFarmAtoms, {
 } from './strkfarm.atoms';
 import VesuAtoms, { vesu } from './vesu.store';
 import ZkLendAtoms, { zkLend } from './zklend.store';
+import EndurAtoms, { endur } from './endur.store';
 
 export const PROTOCOLS = [
-  // {
-  //   name: endur.name,
-  //   class: endur,
-  //   atoms: EndurAtoms,
-  // },
+  {
+    name: endur.name,
+    class: endur,
+    atoms: EndurAtoms,
+  },
   {
     name: strkfarm.name,
     class: strkfarm,
@@ -148,6 +149,27 @@ export const updateFiltersAtom = atom(
   },
 );
 
+const privateProtocols = [
+  {
+    name: endur.name,
+    class: endur,
+    atoms: EndurAtoms,
+  },
+];
+
+export const privatePoolsAtom = atom((get) => {
+  // const pools: PoolInfo[] = [];
+  // const otherPools = getPrivatePools(get);
+  // return [
+  //   ...privateProtocols.reduce(
+  //     (_pools, p) => _pools.concat(get(p.atoms.pools)),
+  //     pools,
+  //   ),
+  //   ...otherPools,
+  // ];
+  return [] as PoolInfo[];
+});
+
 export const allPoolsAtomUnSorted = atom((get) => {
   const pools: PoolInfo[] = [];
   return PROTOCOLS.reduce(
@@ -199,6 +221,7 @@ export function getPoolInfoFromStrategy(
       tags: [getLiveStatusEnum(strat.status.number)],
       isAudited: strat.name.includes('XL') ? false : true,
       leverage: strat.leverage,
+      is_promoted: strat.name.includes('Stake'),
     },
   };
 }
