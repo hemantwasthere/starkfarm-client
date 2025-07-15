@@ -403,7 +403,9 @@ export default function Recovery() {
       </Container>
 
       <hr style={{ float: 'left', width: '100%', margin: '50px 0' }} />
-      <ZklendRecoveryComp />
+      <ZklendRecoveryComp BATCH_ID={1} />
+      <hr style={{ float: 'left', width: '100%', margin: '50px 0' }} />
+      <ZklendRecoveryComp BATCH_ID={2} />
     </Container>
   );
 }
