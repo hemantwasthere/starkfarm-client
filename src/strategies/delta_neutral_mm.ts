@@ -11,12 +11,10 @@ import {
   TokenInfo,
   WithdrawActionInputs,
 } from './IStrategy';
-import { zkLend } from '@/store/zklend.store';
 import ERC20Abi from '@/abi/erc20.abi.json';
 import DeltaNeutralAbi from '@/abi/deltraNeutral.abi.json';
 import MyNumber from '@/utils/MyNumber';
 import { Call, Contract, uint256 } from 'starknet';
-import { nostraLending } from '@/store/nostralending.store';
 import {
   buildStrategyActionHook,
   convertToV2TokenInfo,
@@ -45,8 +43,8 @@ export class DeltaNeutralMM extends IStrategy<void> {
   readonly stepAmountFactors: number[];
   fee_factor = 0.1; // 10% fee
 
-  protocol1: IDapp<any>;
-  protocol2: IDapp<any>;
+  protocol1: IDapp<any> | null = null;
+  protocol2: IDapp<any> | null = null;
   constructor(
     token: TokenInfo,
     name: string,
@@ -56,8 +54,8 @@ export class DeltaNeutralMM extends IStrategy<void> {
     stepAmountFactors: number[],
     liveStatus: StrategyLiveStatus,
     settings: IStrategySettings,
-    protocol1: IDapp<any> = zkLend,
-    protocol2: IDapp<any> = nostraLending,
+    protocol1: IDapp<any> | null = null,
+    protocol2: IDapp<any> | null = null,
   ) {
     const rewardTokens = [{ logo: CONSTANTS.LOGOS.STRK }];
     const nftInfo = NFTS.find(
@@ -118,7 +116,10 @@ export class DeltaNeutralMM extends IStrategy<void> {
 
     this.steps = this.getSteps();
 
-    if (stepAmountFactors.length != this.getSteps().length - 1) {
+    if (
+      this.getSteps().length > 0 &&
+      stepAmountFactors.length != this.getSteps().length - 1
+    ) {
       throw new Error(
         'stepAmountFactors length should be equal to steps length',
       );
@@ -136,6 +137,9 @@ export class DeltaNeutralMM extends IStrategy<void> {
   }
 
   getSteps() {
+    if (!this.protocol1 || !this.protocol2) {
+      return [];
+    }
     return [
       {
         name: `Supply's your ${this.token.name} to ${this.protocol1.name}`,
@@ -176,6 +180,9 @@ export class DeltaNeutralMM extends IStrategy<void> {
     prevActions: StrategyAction[],
   ) {
     console.log('filterMainToken', pools);
+    if (!this.protocol1 || !this.protocol2) {
+      return [];
+    }
     const dapp =
       prevActions.length == 0 || prevActions.length == 4
         ? this.protocol1
@@ -190,6 +197,9 @@ export class DeltaNeutralMM extends IStrategy<void> {
     amount: string,
     prevActions: StrategyAction[],
   ) {
+    if (!this.protocol1 || !this.protocol2) {
+      return [];
+    }
     const dapp = prevActions.length == 1 ? this.protocol1 : this.protocol2;
     return pools.filter(
       (p) => p.pool.name == this.secondaryToken && p.protocol.name == dapp.name,

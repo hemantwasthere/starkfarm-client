@@ -7,7 +7,6 @@ import {
 import { IndexedPoolData } from '@/store/endur.store';
 import { LendingSpace } from '@/store/lending.base';
 import { Category, PoolInfo } from '@/store/pools';
-import { zkLend } from '@/store/zklend.store';
 import {
   convertToV2TokenInfo,
   convertToV2Web3Number,
@@ -407,9 +406,7 @@ export class IStrategy<T> extends IStrategyProps<T> {
 
   filterTokenByProtocol(
     tokenName: string,
-    protocol:
-      | IDapp<LendingSpace.MyBaseAprDoc[]>
-      | IDapp<IndexedPoolData> = zkLend,
+    protocol: IDapp<LendingSpace.MyBaseAprDoc[]> | IDapp<IndexedPoolData>,
   ) {
     return (
       pools: PoolInfo[],
@@ -479,7 +476,7 @@ export class IStrategy<T> extends IStrategyProps<T> {
         }
       }
     } catch (err) {
-      console.warn(`${this.tag} - unsolved`, err);
+      console.warn(`${this.tag} - unsolved`, this.name, err);
       return;
     }
 
@@ -488,7 +485,12 @@ export class IStrategy<T> extends IStrategyProps<T> {
       const sign = action.isDeposit ? 1 : -1;
       const apr = action.isDeposit ? action.pool.apr : action.pool.borrow.apr;
       netYield += sign * apr * Number(action.amount);
-      console.log('netYield1', sign, apr, action.amount, netYield);
+      console.log('netYield1', {
+        sign,
+        apr,
+        amount: action.amount,
+        netYield,
+      });
     });
     this.netYield = netYield / Number(amount);
     console.log('netYield2', netYield, this.netYield, Number(amount));

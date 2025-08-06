@@ -6,6 +6,7 @@ import {
   Step,
   StrategyAction,
   StrategyLiveStatus,
+  StrategyStatus,
   TokenInfo,
 } from './IStrategy';
 import MyNumber from '@/utils/MyNumber';
@@ -17,7 +18,7 @@ import {
 } from '@/utils';
 import { vesu } from '@/store/vesu.store';
 import { endur } from '@/store/endur.store';
-import { PoolInfo } from '@/store/pools';
+import { getDefaultPoolInfo, PoolInfo } from '@/store/pools';
 import { Contract } from 'starknet';
 import { fetchQuotes, QuoteRequest } from '@avnu/avnu-sdk';
 import { Web3Number } from '@strkfarm/sdk';
@@ -78,7 +79,7 @@ export class DeltaNeutralMMVesuEndur extends DeltaNeutralMM {
         ? this.token.name
         : `${this.token.name} (${this.vesuPoolName})`;
     return pools.filter(
-      (p) => p.pool.name == tokenName && p.protocol.name == dapp.name,
+      (p) => p.pool.name == tokenName && p.protocol.name == dapp?.name,
     );
   }
 
@@ -89,16 +90,10 @@ export class DeltaNeutralMMVesuEndur extends DeltaNeutralMM {
     tokenName: string,
   ) {
     const dapp = this.protocol2;
-    console.log(
-      'filterSecondaryToken',
-      pools.filter((p) => p.protocol.name == dapp.name),
-      tokenName,
-      `${tokenName} (${this.vesuPoolName})`,
-    );
     return pools.filter(
       (p) =>
         p.pool.name == `${tokenName} (${this.vesuPoolName})` &&
-        p.protocol.name == dapp.name,
+        p.protocol.name == dapp?.name,
     );
   }
 
@@ -107,33 +102,13 @@ export class DeltaNeutralMMVesuEndur extends DeltaNeutralMM {
     amount: string,
     actions: StrategyAction[],
   ): StrategyAction[] {
-    console.log('optimizer', actions.length, this.stepAmountFactors);
-    const _amount = (
-      Number(amount) * this.stepAmountFactors[actions.length]
-    ).toFixed(2);
-    const pool = { ...eligiblePools[0] };
-    const isDeposit = actions.length == 0 || actions.length == 1;
-    const effectiveAPR = pool.aprSplits.reduce((a, b) => {
-      if (b.apr == 'Err') return a;
-      if (!isDeposit) return a + Number(b.apr);
-      if (b.title.includes('STRK rewards')) {
-        return a + Number(b.apr) * (1 - this.fee_factor);
-      }
-      return a + Number(b.apr);
-    }, 0);
-    console.log('optimizer2', isDeposit, pool, effectiveAPR);
-    pool.apr = isDeposit ? effectiveAPR : pool.borrow.apr;
-    return [
-      ...actions,
-      {
-        pool,
-        amount: _amount,
-        isDeposit,
-      },
-    ];
+    return []; // @deprecated
   }
 
   getSteps(): Step[] {
+    if (!this.protocol1 || !this.protocol2) {
+      return [];
+    }
     return [
       {
         name: `Stake ${this.token.name} to ${this.protocol1.name}`,
@@ -176,76 +151,116 @@ export class DeltaNeutralMMVesuEndur extends DeltaNeutralMM {
     amount: string,
     actions: StrategyAction[],
   ) {
-    console.log('getLookRepeatYieldAmount', amount, actions);
-    let full_amount = Number(amount);
-    this.stepAmountFactors.slice(0, actions.length).forEach((factor, i) => {
-      full_amount /= factor;
+    return []; // @deprecated
+  }
+
+  async solve(pools: PoolInfo[], amount: string) {
+    const netYield = 0;
+    this.status = StrategyStatus.SOLVING;
+    const re7PoolID =
+      '2345856225134458665876812536882617294246962319062565703131100435311373119841';
+    const xSTRKPool = pools.find((p) => p.pool.id == `Vesu_${re7PoolID}_xSTRK`);
+    const STRKPool = pools.find((p) => p.pool.id == `Vesu_${re7PoolID}_STRK`);
+    const endurXSTRK = pools.find((p) => p.pool.id == 'endur_strk');
+
+    this.actions = this.getSteps().map((step) => {
+      return {
+        name: step.name,
+        amount: '0',
+        isDeposit: step.name.includes('Borrow') ? false : true,
+        pool: getDefaultPoolInfo(),
+      };
     });
-    const excessFactor = this.stepAmountFactors[actions.length];
-    const amount1 = excessFactor * full_amount;
-    const exp1 = amount1 * this.actions[0].pool.apr;
-    const amount2 = this.stepAmountFactors[1] * amount1;
-    const exp2 = amount2 * this.actions[1].pool.apr;
-    const amount3 = this.stepAmountFactors[2] * amount2;
-    const exp3 = -amount3 * this.actions[2].pool.borrow.apr;
-    const effecitveAmount = amount1 - amount3;
-    const effectiveAPR = (exp1 + exp2 + exp3) / effecitveAmount;
-    const pool: PoolInfo = { ...eligiblePools[0] };
-    pool.apr = effectiveAPR;
-    const strategyAction: StrategyAction = {
-      pool,
-      amount: effecitveAmount.toString(),
-      isDeposit: true,
-    };
-    console.log(
-      'getLookRepeatYieldAmount exp1',
-      this.id,
-      exp1,
-      full_amount,
-      exp2,
-      amount2,
-      this.actions[2],
-      this.actions[1],
-      exp3,
-      amount1,
-      amount3,
+
+    const fee = this.fee_factor;
+    let STRKRewardsAPR =
+      xSTRKPool?.aprSplits.find((a) => a.title == 'STRK rewards')?.apr || 0;
+    STRKRewardsAPR = STRKRewardsAPR == 'Err' ? 0 : STRKRewardsAPR;
+    const collateralAPY = (xSTRKPool?.apr || 0) + (endurXSTRK?.apr || 0);
+    const feeAdjustedColAPY = collateralAPY - STRKRewardsAPR * this.fee_factor;
+    const borrowAPY = STRKPool?.borrow.apr || 0;
+
+    const {
+      collateralXSTRK,
+      collateralUSDValue,
+      debtSTRK,
+      debtUSDValue,
+      xSTRKPrice,
+    } = await this.getPositionInfo();
+
+    const PAYOFF =
+      Number(collateralUSDValue.toEtherToFixedDecimals(6)) * feeAdjustedColAPY -
+      Number(debtUSDValue.toEtherStr()) * borrowAPY;
+    const investment =
+      Number(collateralUSDValue.toEtherToFixedDecimals(6)) -
+      Number(debtUSDValue.toEtherStr());
+    this.netYield = investment == 0 ? 0 : PAYOFF / investment;
+  }
+
+  async getPositionInfo() {
+    const resp = await fetch(
+      `${getEndpoint()}/vesu/positions?walletAddress=${this.strategyAddress}`,
     );
-    return [...actions, strategyAction];
+    const data = await resp.json();
+    if (!data.data || data.data.length == 0) {
+      throw new Error('No positions found');
+    }
+
+    const collateralXSTRK = new MyNumber(
+      data.data[0].collateral.value,
+      data.data[0].collateral.decimals,
+    );
+    const collateralUSDValue = new MyNumber(
+      data.data[0].collateral.usdPrice.value,
+      data.data[0].collateral.usdPrice.decimals,
+    );
+    const debtSTRK = new MyNumber(
+      data.data[0].debt.value,
+      data.data[0].debt.decimals,
+    );
+    const debtUSDValue = new MyNumber(
+      data.data[0].debt.usdPrice.value,
+      data.data[0].debt.usdPrice.decimals,
+    );
+
+    const xSTRKPrice = await this.getXSTRKPrice();
+    const collateralInSTRK =
+      Number(collateralXSTRK.toEtherToFixedDecimals(6)) * xSTRKPrice;
+    const STRKUSDPrice =
+      Number(debtUSDValue.toEtherToFixedDecimals(6)) /
+      Number(debtSTRK.toEtherToFixedDecimals(6));
+    const actualCollateralUSDValue = collateralInSTRK * STRKUSDPrice;
+
+    return {
+      collateralXSTRK,
+      collateralUSDValue: MyNumber.fromEther(
+        actualCollateralUSDValue.toFixed(6),
+        collateralUSDValue.decimals,
+      ),
+      debtSTRK,
+      debtUSDValue,
+      xSTRKPrice,
+      collateralInSTRK,
+    };
   }
 
   getTVL = async (): Promise<AmountsInfo> => {
     if (!this.isLive()) return ZeroAmountsInfo([this.token]);
 
     try {
-      const resp = await fetch(
-        `${getEndpoint()}/vesu/positions?walletAddress=${this.strategyAddress}`,
-      );
-      const data = await resp.json();
-      if (!data.data || data.data.length == 0) {
-        throw new Error('No positions found');
-      }
-      const collateralXSTRK = new MyNumber(
-        data.data[0].collateral.value,
-        data.data[0].collateral.decimals,
-      );
-      const collateralUSDValue = new MyNumber(
-        data.data[0].collateral.usdPrice.value,
-        data.data[0].collateral.usdPrice.decimals,
-      );
-      const debtSTRK = new MyNumber(
-        data.data[0].debt.value,
-        data.data[0].debt.decimals,
-      );
-      const debtUSDValue = new MyNumber(
-        data.data[0].debt.usdPrice.value,
-        data.data[0].debt.usdPrice.decimals,
-      );
-      const xSTRKPrice = await this.getXSTRKPrice();
-      const collateralInSTRK =
-        Number(collateralXSTRK.toEtherToFixedDecimals(6)) * xSTRKPrice;
+      const {
+        collateralXSTRK,
+        collateralUSDValue,
+        debtSTRK,
+        debtUSDValue,
+        xSTRKPrice,
+        collateralInSTRK,
+      } = await this.getPositionInfo();
+
       const usdValue =
-        Number(collateralUSDValue.toEtherStr()) -
+        Number(collateralUSDValue.toEtherToFixedDecimals(6)) -
         Number(debtUSDValue.toEtherStr());
+
       return {
         usdValue,
         amounts: [
@@ -254,7 +269,7 @@ export class DeltaNeutralMMVesuEndur extends DeltaNeutralMM {
               (
                 collateralInSTRK - Number(debtSTRK.toEtherToFixedDecimals(6))
               ).toFixed(6),
-              data.data[0].collateral.decimals,
+              collateralXSTRK.decimals,
             ),
             usdValue,
             tokenInfo: convertToV2TokenInfo(this.token),
