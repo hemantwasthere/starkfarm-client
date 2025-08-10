@@ -106,9 +106,13 @@ export class DeltaNeutralMMVesuEndur extends IStrategy<SenseiVaultSettings> {
     const endurXSTRK = pools.find((p) => p.pool.id == 'endur_strk');
 
     // get Rewards APR and offset my fee
-    let STRKRewardsAPR =
+    const STRKRewardsAPR =
       xSTRKPool?.aprSplits.find((a) => a.title == 'STRK rewards')?.apr || 0;
-    STRKRewardsAPR = STRKRewardsAPR == 'Err' ? 0 : STRKRewardsAPR;
+    if (STRKRewardsAPR == 'Err' || STRKRewardsAPR == 0) {
+      throw new Error(
+        'Failed to fetch STRK rewards APR. Please try again later.',
+      );
+    }
     const collateralAPY = (xSTRKPool?.apr || 0) + (endurXSTRK?.apr || 0);
     const feeAdjustedColAPY = collateralAPY - STRKRewardsAPR * this.fee_factor;
     const borrowAPY = STRKPool?.borrow.apr || 0;
@@ -117,6 +121,12 @@ export class DeltaNeutralMMVesuEndur extends IStrategy<SenseiVaultSettings> {
       await this.senseiVault.getPositionInfo();
 
     const expectedLeverage = await this.expectedLeverage();
+    if (expectedLeverage <= 0) {
+      this.status = StrategyStatus.UNINTIALISED;
+      throw new Error(
+        'Strategy is not solvable at the moment: expectedLeverage <= 0',
+      );
+    }
     this.setMetadataPoints(Number(expectedLeverage.toFixed(1)));
 
     const PAYOFF =
