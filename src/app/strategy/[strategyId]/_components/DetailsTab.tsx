@@ -29,6 +29,16 @@ export function DetailsTab(props: DetailsTabProps) {
     return [];
   }, [strategyAPIResult.actions, strategy.metadata.investmentSteps]);
 
+  function isDeposit(action: string) {
+    return (
+      action.toLowerCase().includes('stake') ||
+      action.toLowerCase().includes('supply') ||
+      action.toLowerCase().includes('deposit') ||
+      action.toLowerCase().includes('invest') ||
+      action.toLowerCase().includes('buy')
+    );
+  }
+
   return (
     <Flex padding={'24px 16px'} gap={'24px'}>
       <Flex width={'100%'} flexDirection={'column'} gap={5}>
@@ -54,8 +64,7 @@ export function DetailsTab(props: DetailsTabProps) {
                   borderRadius={'8px'}
                   padding={'10px'}
                 >
-                  {action.toLowerCase().includes('stake') ||
-                  action.toLowerCase().includes('supply') ? (
+                  {isDeposit(action) ? (
                     <Image src={depositAction.src} />
                   ) : action.toLowerCase().includes('borrow') ? (
                     <Image src={withdrawAction.src} />

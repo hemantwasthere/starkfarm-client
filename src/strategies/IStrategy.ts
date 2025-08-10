@@ -103,6 +103,7 @@ export interface IStrategyActionHook {
   // if strategy wants to relate different input amounts,
   // config this fn
   onAmountsChange?: onStratAmountsChangeFn;
+  onClickButton?: (amount: MyNumber) => Promise<ReactNode | string[]>;
 }
 
 export interface IStrategySettings {
@@ -190,7 +191,7 @@ export class IStrategyProps<T> {
   ];
 
   getSafetyFactorLine() {
-    return `Risk factor: ${this.riskFactor}/5`;
+    return `Risk factor: ${this.riskFactor.toFixed(2)}/5`;
   }
 
   depositMethods = async (
@@ -325,6 +326,8 @@ export class IStrategyProps<T> {
 
 export class IStrategy<T> extends IStrategyProps<T> {
   readonly tag: string;
+
+  cache: { [key: string]: { value: any; time: number; ttl: number } } = {}; // to avoid multiple calls to the same function
 
   constructor(
     id: string,
@@ -509,6 +512,34 @@ export class IStrategy<T> extends IStrategyProps<T> {
 
   isSolving() {
     return this.status === StrategyStatus.SOLVING;
+  }
+
+  setCache(
+    key: string,
+    value: any,
+    ttl: number = 60000, // default 1 minute
+  ) {
+    this.cache[key] = {
+      value,
+      time: Date.now(),
+      ttl,
+    };
+  }
+
+  getCache(key: string): any | null {
+    const cached = this.cache[key];
+    if (!cached) return null;
+    if (Date.now() - cached.time > cached.ttl) {
+      delete this.cache[key];
+      return null;
+    }
+    return cached.value;
+  }
+
+  isCacheValid(key: string): boolean {
+    const cached = this.cache[key];
+    if (!cached) return false;
+    return Date.now() - cached.time <= cached.ttl;
   }
 }
 

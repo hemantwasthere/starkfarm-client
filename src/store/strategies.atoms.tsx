@@ -5,7 +5,6 @@ import {
   StrategyLiveStatus,
 } from '@/strategies/IStrategy';
 import CONSTANTS from '@/constants';
-import Mustache from 'mustache';
 import { convertToV2TokenInfo, getTokenInfoFromName } from '@/utils';
 import { allPoolsAtomUnSorted, privatePoolsAtom } from './protocols';
 import { endur } from './endur.store';
@@ -15,7 +14,11 @@ import { DeltaNeutralMM } from '@/strategies/delta_neutral_mm';
 import { DeltaNeutralMM2 } from '@/strategies/delta_neutral_mm_2';
 import { DeltaNeutralMMVesuEndur } from '@/strategies/delta_neutral_mm_vesu_endur';
 import { Box, Link, Text } from '@chakra-ui/react';
-import { EkuboCLVaultStrategies, VesuRebalanceStrategies } from '@strkfarm/sdk';
+import {
+  EkuboCLVaultStrategies,
+  SenseiStrategies,
+  VesuRebalanceStrategies,
+} from '@strkfarm/sdk';
 import { VesuRebalanceStrategy } from '@/strategies/vesu_rebalance';
 import { atomWithQuery } from 'jotai-tanstack-query';
 import { EkuboClStrategy } from '@/strategies/ekubo_cl_vault';
@@ -193,37 +196,16 @@ export function getStrategies() {
     },
   );
 
-  const xSTRKDescription = `Deposit your {{token1}} to automatically loop your funds via Endur and Vesu to create a delta neutral position. This strategy is designed to maximize your yield on {{token1}}. Your position is automatically adjusted periodically to maintain a healthy health factor. You receive a NFT as representation for your stake on Troves. You can withdraw anytime by redeeming your NFT for {{token2}}.`;
+  const xSTRKStrategyInfo = SenseiStrategies.find(
+    (s) => s.name === 'xSTRK Sensei',
+  )!;
   const deltaNeutralxSTRKSTRK = new DeltaNeutralMMVesuEndur(
-    getTokenInfoFromName('STRK'),
-    'xSTRK Sensei',
-    Mustache.render(xSTRKDescription, { token1: 'STRK', token2: 'xSTRK' }),
-    'xSTRK',
-    CONSTANTS.CONTRACTS.DeltaNeutralxSTRKSTRKXL,
-    [1, 1, 0.725, 1.967985], // precomputed factors based on strategy math
+    'xstrk_sensei',
+    xSTRKStrategyInfo,
     StrategyLiveStatus.ACTIVE,
     {
-      maxTVL: 1500000,
+      maxTVL: xSTRKStrategyInfo.maxTVL.toNumber(),
       alerts: [
-        // {
-        //   type: 'warning',
-        //   text: (
-        //     <p>
-        //       <strong>Note:</strong> Vesu has recently migrated. Deposits and
-        //       withdrawals for this strategy are temporarily paused until we
-        //       migrate this strategy.{' '}
-        //       <a
-        //         href="https://x.com/vesuxyz/status/1927827405030244838"
-        //         target="_blank"
-        //         rel="noopener noreferrer"
-        //       >
-        //         Learn more
-        //       </a>
-        //       .
-        //     </p>
-        //   ),
-        //   tab: 'all',
-        // },
         {
           type: 'info',
           text: 'Depeg-risk: If xSTRK price on DEXes deviates from expected price, you may lose money or may have to wait for the price to recover.',

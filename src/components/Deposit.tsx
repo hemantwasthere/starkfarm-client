@@ -279,10 +279,10 @@ function InternalDeposit(props: DepositProps) {
   }, [props]);
 
   // constructs tx calls
-  const { calls } = useMemo(() => {
+  const { calls, onClickConfirmationPopup } = useMemo(() => {
     const hook = callsInfo[depositInfo.actionIndex];
     if (!hook) return { calls: [] };
-    return { calls: hook.calls };
+    return { calls: hook.calls, onClickConfirmationPopup: hook.onClickButton };
   }, [address, provider, isMaxClicked, callsInfo, depositInfo]);
 
   const tvlInfo = useAtomValue(props.strategy.tvlAtom);
@@ -369,6 +369,7 @@ function InternalDeposit(props: DepositProps) {
               }
             });
           }}
+          onClickConfirmationPopup={onClickConfirmationPopup}
         />
       </Center>
 

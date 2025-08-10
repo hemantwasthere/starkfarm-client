@@ -344,8 +344,22 @@ export class DeltaNeutralMM extends IStrategy<void> {
 
     const calls1 = [call11, call12];
 
-    return [buildStrategyActionHook(calls1, [baseTokenInfo])];
+    const output = buildStrategyActionHook(calls1, [baseTokenInfo]);
+    output.onClickButton = this.onDeposotButtonClick.bind(this);
+    return [output];
   };
+
+  async onDeposotButtonClick(
+    amount: MyNumber,
+  ): Promise<React.ReactNode | string[]> {
+    return [];
+  }
+
+  async onWithdrawButtonClick(
+    amount: MyNumber,
+  ): Promise<React.ReactNode | string[]> {
+    return [];
+  }
 
   getUserTVL = async (user: string): Promise<AmountsInfo> => {
     if (this.liveStatus == StrategyLiveStatus.COMING_SOON)
@@ -442,12 +456,13 @@ export class DeltaNeutralMM extends IStrategy<void> {
     if (!nftInfo) {
       throw new Error('DeltaMM: NFT not found');
     }
-    return [
-      buildStrategyActionHook(
-        calls,
-        [mainToken],
-        [getBalanceAtom(nftInfo, atom(true))],
-      ),
-    ];
+
+    const output = buildStrategyActionHook(
+      calls,
+      [mainToken],
+      [getBalanceAtom(nftInfo, atom(true))],
+    );
+    output.onClickButton = this.onWithdrawButtonClick.bind(this);
+    return [output];
   };
 }
