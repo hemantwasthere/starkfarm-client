@@ -276,7 +276,7 @@ function InternalDeposit(props: DepositProps) {
         : MyNumber.fromZero(),
       tokenAddr: props.strategy.settings.quoteToken.address.address,
     };
-  }, [props]);
+  }, [props, investedSummary, isDeposit]);
 
   // constructs tx calls
   const { calls, onClickConfirmationPopup } = useMemo(() => {
@@ -305,9 +305,9 @@ function InternalDeposit(props: DepositProps) {
       return false;
     }
 
-    // if (!investedSummary || loadingInvestmentSummary) {
-    //   return false;
-    // }
+    if (txInfo.amount.isZero()) {
+      return false;
+    }
     // todo consider max cap of each token as well
     return inputsInfo.some((a) => a.amount.greaterThan(0));
   }, [

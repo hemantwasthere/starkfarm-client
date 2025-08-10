@@ -204,7 +204,12 @@ export class DeltaNeutralMMVesuEndur extends IStrategy<SenseiVaultSettings> {
   ): Promise<React.ReactNode | string[]> {
     try {
       const expectedLeverage = await this.expectedLeverage();
-
+      if (expectedLeverage <= 0) {
+        alert(
+          'Strategy is not solvable at the moment. Please try again later.',
+        );
+        return ['Strategy execution failed. Please refresh and try again.'];
+      }
       const STRKToBorrow = amount.operate('mul', expectedLeverage - 1);
       const message1 = `Strategy will ${isDeposit ? 'borrow' : 'repay'} ${STRKToBorrow.toEtherToFixedDecimals(2)} STRK (Approx)`;
       const totalSwapAmount = amount.operate('mul', expectedLeverage);

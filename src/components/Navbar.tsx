@@ -270,7 +270,7 @@ export default function Navbar(props: NavbarProps) {
       zIndex={999}
       top="0"
     >
-      <TncModal />
+      {process.env.NEXT_PUBLIC_IGNORE_SIGNING != 'true' && <TncModal />}
       <Center bg="mycard" color="text_secondary" padding={0}>
         <Text
           fontSize="12px"
