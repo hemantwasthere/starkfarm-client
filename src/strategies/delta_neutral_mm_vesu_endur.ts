@@ -1,4 +1,4 @@
-import CONSTANTS from '@/constants';
+import CONSTANTS, { NFTS } from '@/constants';
 import {
   AmountsInfo,
   DepositActionInputs,
@@ -16,6 +16,7 @@ import {
   DummyStrategyActionHook,
   getPrice,
   getTokenInfoFromName,
+  standariseAddress,
   ZeroAmountsInfo,
 } from '@/utils';
 import { PoolInfo } from '@/store/pools';
@@ -32,6 +33,8 @@ import {
 } from '@strkfarm/sdk';
 import axios from 'axios';
 import React from 'react';
+import { getBalanceAtom } from '@/store/balance.atoms';
+import { atom } from 'jotai';
 
 export class DeltaNeutralMMVesuEndur extends IStrategy<SenseiVaultSettings> {
   senseiVault: SenseiVault;
@@ -114,7 +117,7 @@ export class DeltaNeutralMMVesuEndur extends IStrategy<SenseiVaultSettings> {
       await this.senseiVault.getPositionInfo();
 
     const expectedLeverage = await this.expectedLeverage();
-    this.setMetadataPoints(expectedLeverage);
+    this.setMetadataPoints(Number(expectedLeverage.toFixed(1)));
 
     const PAYOFF =
       Number(collateralUSDValue.toFixed(6)) * feeAdjustedColAPY -
@@ -123,6 +126,22 @@ export class DeltaNeutralMMVesuEndur extends IStrategy<SenseiVaultSettings> {
       Number(collateralUSDValue.toFixed(6)) - Number(debtUSDValue.toFixed(6));
     this.netYield = investment == 0 ? 0 : PAYOFF / investment;
   }
+
+  getUserTVL = async (user: string): Promise<AmountsInfo> => {
+    if (!this.isLive()) {
+      return ZeroAmountsInfo([this.metadata.depositTokens[0]]);
+    }
+    try {
+      const res = await this.senseiVault.getUserTVL(ContractAddr.from(user));
+      return {
+        usdValue: res.usdValue,
+        amounts: [res],
+      };
+    } catch (error) {
+      console.error('Error fetching user TVL:', error);
+      return ZeroAmountsInfo([this.metadata.depositTokens[0]]);
+    }
+  };
 
   getTVL = async (): Promise<AmountsInfo> => {
     if (!this.isLive())
@@ -256,7 +275,8 @@ export class DeltaNeutralMMVesuEndur extends IStrategy<SenseiVaultSettings> {
   withdrawMethods = async (inputs: WithdrawActionInputs) => {
     const { amount, address, provider, isMax } = inputs;
     if (!address || address == '0x0') {
-      return [DummyStrategyActionHook([this.holdingTokens[0] as TokenInfo])];
+      const output = DummyStrategyActionHook([this.metadata.depositTokens[0]]);
+      return [output];
     }
 
     const finalAmount = isMax
@@ -274,9 +294,16 @@ export class DeltaNeutralMMVesuEndur extends IStrategy<SenseiVaultSettings> {
       ContractAddr.from(address),
     );
 
-    const output = buildStrategyActionHook(calls, [
-      this.metadata.depositTokens[0],
-    ]);
+    const nftInfo = NFTS.find(
+      (nft) =>
+        standariseAddress(nft.address) ==
+        standariseAddress(this.metadata.address.address),
+    );
+    const output = buildStrategyActionHook(
+      calls,
+      [this.metadata.depositTokens[0]],
+      [getBalanceAtom(nftInfo, atom(true))],
+    );
     output.onClickButton = this.onWithdrawButtonClick.bind(this);
     return [output];
   };
