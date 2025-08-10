@@ -62,6 +62,9 @@ function HoldingsText({
 }) {
   if (strategy.settings.isInMaintenance)
     return <span style={{ color: 'orange' }}>Maintenance Mode</span>;
+
+  if (strategy?.isRetired()) return '-';
+
   if (!address)
     return <Text fontSize={'13px'}>You will see your holdings here</Text>;
   if (balData.isLoading || !balData.data?.tokenInfo) {
@@ -80,7 +83,7 @@ function HoldingsText({
       balData.data.tokenInfo?.displayDecimals || 2,
     ),
   );
-  if (value === 0 || strategy?.isRetired()) return '-';
+  if (value === 0) return '-';
   return `${balData.data.amount.toEtherToFixedDecimals(
     balData.data.tokenInfo?.displayDecimals || 2,
   )} ${balData.data.tokenInfo?.name}`;

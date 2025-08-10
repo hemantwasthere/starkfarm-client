@@ -22,8 +22,8 @@ import {
   getTokenInfoFromName,
   ZeroAmountsInfo,
 } from '@/utils';
-import { zkLend } from '@/store/zklend.store';
 import { ContractAddr, IStrategyMetadata, Web3Number } from '@strkfarm/sdk';
+import React from 'react';
 
 interface Step {
   name: string;
@@ -48,7 +48,7 @@ export class AutoTokenStrategy extends IStrategy<void> {
   constructor(
     token: TokenName,
     name: string,
-    description: string,
+    description: string | React.ReactNode,
     lpTokenName: string,
     strategyAddress: string,
     settings: IStrategySettings,
@@ -101,18 +101,7 @@ export class AutoTokenStrategy extends IStrategy<void> {
     );
     this.token = tokenInfo;
 
-    this.steps = [
-      {
-        name: `Supplies your ${token} to zkLend`,
-        optimizer: this.optimizer,
-        filter: [this.filterTokenByProtocol(this.token.name, zkLend)],
-      },
-      {
-        name: `Re-invest your STRK Rewards every 7 days`,
-        optimizer: this.compounder,
-        filter: [this.filterTokenByProtocol('STRK', zkLend)],
-      },
-    ];
+    this.steps = [];
     const _risks = [...this.risks];
     this.risks = [
       this.getSafetyFactorLine(),

@@ -5,7 +5,6 @@ import {
   StrategyLiveStatus,
 } from '@/strategies/IStrategy';
 import CONSTANTS from '@/constants';
-import Mustache from 'mustache';
 import { convertToV2TokenInfo, getTokenInfoFromName } from '@/utils';
 import { allPoolsAtomUnSorted, privatePoolsAtom } from './protocols';
 import { endur } from './endur.store';
@@ -15,7 +14,11 @@ import { DeltaNeutralMM } from '@/strategies/delta_neutral_mm';
 import { DeltaNeutralMM2 } from '@/strategies/delta_neutral_mm_2';
 import { DeltaNeutralMMVesuEndur } from '@/strategies/delta_neutral_mm_vesu_endur';
 import { Box, Link, Text } from '@chakra-ui/react';
-import { EkuboCLVaultStrategies, VesuRebalanceStrategies } from '@strkfarm/sdk';
+import {
+  EkuboCLVaultStrategies,
+  SenseiStrategies,
+  VesuRebalanceStrategies,
+} from '@strkfarm/sdk';
 import { VesuRebalanceStrategy } from '@/strategies/vesu_rebalance';
 import { atomWithQuery } from 'jotai-tanstack-query';
 import { EkuboClStrategy } from '@/strategies/ekubo_cl_vault';
@@ -64,10 +67,22 @@ export function getStrategies() {
     },
   ];
 
+  const DNMMDescription = (token1: string, token2: string) => (
+    <Box>
+      <Text>
+        <b style={{ color: 'red' }}>Note: </b>Vault is retired due to zkLend
+        exploit. Claim any recovered funds{' '}
+        <Link href="/recovery" textDecoration={'underline'}>
+          here.
+        </Link>
+      </Text>
+    </Box>
+  );
+
   const autoStrkStrategy = new AutoTokenStrategy(
     'STRK',
     'Auto Compounding STRK',
-    "Stake your STRK or zkLend's zSTRK token to receive DeFi Spring $STRK rewards every 7 days. The strategy auto-collects your rewards and re-invests them in the zkLend STRK pool, giving you higher return through compounding. You receive frmzSTRK LP token as representation for your stake on Troves. You can withdraw anytime by redeeming your frmzSTRK for zSTRK and see your STRK in zkLend.",
+    DNMMDescription('', ''),
     'zSTRK',
     CONSTANTS.CONTRACTS.AutoStrkFarm,
     {
@@ -81,7 +96,7 @@ export function getStrategies() {
   const autoUSDCStrategy = new AutoTokenStrategy(
     'USDC',
     'Auto Compounding USDC',
-    "Stake your USDC or zkLend's zUSDC token to receive DeFi Spring $STRK rewards every 7 days. The strategy auto-collects your $STRK rewards, swaps them to USDC and re-invests them in the zkLend USDC pool, giving you higher return through compounding. You receive frmzUSDC LP token as representation for your stake on Troves. You can withdraw anytime by redeeming your frmzUSDC for zUSDC and see your STRK in zkLend.",
+    DNMMDescription('', ''),
     'zUSDC',
     CONSTANTS.CONTRACTS.AutoUsdcFarm,
     {
@@ -113,25 +128,6 @@ export function getStrategies() {
     },
   ];
 
-  const DNMMDescription = (token1: string, token2: string) => (
-    <Box>
-      <Text marginBottom={'10px'}>
-        Deposit your {token1} to automatically loop your funds between zkLend
-        and Nostra to create a delta neutral position. This strategy is designed
-        to maximize your yield on {token1}. Your position is automatically
-        adjusted periodically to maintain a healthy health factor. You receive a
-        NFT as representation for your stake on Troves. You can withdraw anytime
-        by redeeming your NFT for {token2}.
-      </Text>
-      <Text>
-        <b style={{ color: 'red' }}>Note: </b>Vault is retired due to zkLend
-        exploit. Claim any recovered funds{' '}
-        <Link href="/recovery" textDecoration={'underline'}>
-          here.
-        </Link>
-      </Text>
-    </Box>
-  );
   const usdcTokenInfo = getTokenInfoFromName('USDC');
   const deltaNeutralMMUSDCETH = new DeltaNeutralMM(
     usdcTokenInfo,
@@ -200,37 +196,16 @@ export function getStrategies() {
     },
   );
 
-  const xSTRKDescription = `Deposit your {{token1}} to automatically loop your funds via Endur and Vesu to create a delta neutral position. This strategy is designed to maximize your yield on {{token1}}. Your position is automatically adjusted periodically to maintain a healthy health factor. You receive a NFT as representation for your stake on Troves. You can withdraw anytime by redeeming your NFT for {{token2}}.`;
+  const xSTRKStrategyInfo = SenseiStrategies.find(
+    (s) => s.name === 'xSTRK Sensei',
+  )!;
   const deltaNeutralxSTRKSTRK = new DeltaNeutralMMVesuEndur(
-    getTokenInfoFromName('STRK'),
-    'xSTRK Sensei',
-    Mustache.render(xSTRKDescription, { token1: 'STRK', token2: 'xSTRK' }),
-    'xSTRK',
-    CONSTANTS.CONTRACTS.DeltaNeutralxSTRKSTRKXL,
-    [1, 1, 0.725, 1.967985], // precomputed factors based on strategy math
+    'xstrk_sensei',
+    xSTRKStrategyInfo,
     StrategyLiveStatus.ACTIVE,
     {
-      maxTVL: 500000,
+      maxTVL: xSTRKStrategyInfo.maxTVL.toNumber(),
       alerts: [
-        // {
-        //   type: 'warning',
-        //   text: (
-        //     <p>
-        //       <strong>Note:</strong> Vesu has recently migrated. Deposits and
-        //       withdrawals for this strategy are temporarily paused until we
-        //       migrate this strategy.{' '}
-        //       <a
-        //         href="https://x.com/vesuxyz/status/1927827405030244838"
-        //         target="_blank"
-        //         rel="noopener noreferrer"
-        //       >
-        //         Learn more
-        //       </a>
-        //       .
-        //     </p>
-        //   ),
-        //   tab: 'all',
-        // },
         {
           type: 'info',
           text: 'Depeg-risk: If xSTRK price on DEXes deviates from expected price, you may lose money or may have to wait for the price to recover.',
@@ -356,7 +331,6 @@ const strategiesAtomAsync = atomWithQuery((get) => {
       const allPools = get(allPoolsAtomUnSorted);
       const requiredPools = allPools.filter(
         (p) =>
-          p.protocol.name === 'zkLend' ||
           p.protocol.name === 'Nostra' ||
           p.protocol.name === 'Vesu' ||
           p.protocol.name === endur.name,

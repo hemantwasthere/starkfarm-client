@@ -24,12 +24,12 @@ export type TokenName =
 
 export const CONSTANTS = {
   DEX_INCENTIVE_URL:
-    'https://kx58j6x5me.execute-api.us-east-1.amazonaws.com/starknet/fetchFile?file=strk_grant.json',
+    'https://app.troves.fi/strk-incentives/fetchFile?file=strk_grant.json',
   NOSTRA_DEGEN_INCENTIVE_URL: 'https://api.nostra.finance/query/pool_aprs',
   CARMINE_INCENTIVES_URL: '/carmine/api/v1/mainnet/defispring',
   CARMINE_URL: '/carmine/api/v2/mainnet',
   LENDING_INCENTIVES_URL:
-    'https://kx58j6x5me.execute-api.us-east-1.amazonaws.com/starknet/fetchFile?file=prod-api/lending/lending_strk_grant.json',
+    'https://app.troves.fi/strk-incentives/fetchFile?file=prod-api/lending/lending_strk_grant.json',
   LOGOS,
   COMMUNITY_TG: 'https://troves.fi/tg',
   NOSTRA: {
@@ -54,8 +54,8 @@ export const CONSTANTS = {
     BASE_APR_API: '/haiko/markets?network=mainnet',
   },
   Troves: {
-    // BASE_APR_API: '/api/strategies',
-    BASE_APR_API: 'https://beta.troves.fi/api/strategies',
+    BASE_APR_API: '/api/strategies',
+    // BASE_APR_API: 'https://beta.troves.fi/api/strategies',
   },
   MY_SWAP: {
     POOLS_API: '/myswap/data/pools/all.json',
