@@ -17,12 +17,14 @@ import { Box, Link, Text } from '@chakra-ui/react';
 import {
   EkuboCLVaultStrategies,
   SenseiStrategies,
+  UniversalStrategies,
   VesuRebalanceStrategies,
 } from '@strkfarm/sdk';
 import { VesuRebalanceStrategy } from '@/strategies/vesu_rebalance';
 import { atomWithQuery } from 'jotai-tanstack-query';
 import { EkuboClStrategy } from '@/strategies/ekubo_cl_vault';
 import { ReactNode } from 'react';
+import { UniversalStrategyClass } from '@/strategies/universal.strat';
 
 export interface StrategyInfo<T> extends IStrategyProps<T> {
   name: string;
@@ -202,7 +204,7 @@ export function getStrategies() {
   const deltaNeutralxSTRKSTRK = new DeltaNeutralMMVesuEndur(
     'xstrk_sensei',
     xSTRKStrategyInfo,
-    StrategyLiveStatus.ACTIVE,
+    StrategyLiveStatus.HOT,
     {
       maxTVL: xSTRKStrategyInfo.maxTVL.toNumber(),
       alerts: [
@@ -265,7 +267,7 @@ export function getStrategies() {
       v.name,
       v.description as ReactNode,
       v,
-      StrategyLiveStatus.HOT,
+      StrategyLiveStatus.ACTIVE,
       {
         maxTVL: 0,
         isAudited: v.auditUrl ? true : false,
@@ -282,6 +284,24 @@ export function getStrategies() {
           getTokenInfoFromName(v.depositTokens[1]?.symbol || ''),
         ),
         isTransactionHistDisabled: true,
+      },
+    );
+  });
+
+  const evergreenStrategies = UniversalStrategies.map((uni) => {
+    return new UniversalStrategyClass(
+      `evergreen_${uni.depositTokens[0]?.symbol.toLowerCase()}`,
+      getTokenInfoFromName(uni.depositTokens[0]?.symbol || ''),
+      uni.name,
+      uni.description as ReactNode,
+      uni,
+      StrategyLiveStatus.HOT,
+      {
+        maxTVL: 0,
+        isAudited: false,
+        isPaused: false,
+        alerts: [],
+        quoteToken: convertToV2TokenInfo(uni.depositTokens[0]),
       },
     );
   });
@@ -308,6 +328,7 @@ export function getStrategies() {
     deltaNeutralxSTRKSTRK,
     ...vesuRebalanceStrats,
     ...ekuboCLStrats,
+    ...evergreenStrategies,
     // xSTRKStrategy,
   ];
 

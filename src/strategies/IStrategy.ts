@@ -48,9 +48,6 @@ export interface TokenInfo {
   address?: string;
   name: string;
   logo: any;
-  minAmount: MyNumber;
-  maxAmount: MyNumber;
-  stepAmount: MyNumber;
   ekuboPriceKey?: string;
   isERC4626: boolean;
 }
