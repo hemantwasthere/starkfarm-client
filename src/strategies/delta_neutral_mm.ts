@@ -421,12 +421,6 @@ export class DeltaNeutralMM extends IStrategy<void> {
     const { amount, address, provider, isMax } = inputs;
     const mainToken = { ...this.token };
 
-    // removing max amount restrictions on withdrawal
-    mainToken.maxAmount = MyNumber.fromEther(
-      '100000000000',
-      mainToken.maxAmount.decimals,
-    );
-
     if (!address || address == '0x0') {
       return [DummyStrategyActionHook([mainToken])];
     }

@@ -160,7 +160,7 @@ export class UniversalStrategyClass extends IStrategy<UniversalStrategySettings>
 
   async solve(pools: PoolInfo[], amount: string) {
     const yieldInfo = await this.universalStrategy.netAPY();
-    this.netYield = yieldInfo;
+    this.netYield = yieldInfo.net;
     console.log('netYield2', this.netYield, Number(amount));
     this.leverage = 1;
 
