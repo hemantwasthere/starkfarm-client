@@ -300,7 +300,13 @@ export function getStrategies() {
         maxTVL: 0,
         isAudited: false,
         isPaused: false,
-        alerts: [],
+        alerts: [
+          {
+            tab: 'withdraw',
+            text: 'On withdrawal, you will receive an NFT representing your withdrawal request. The funds will be automatically sent to your wallet (NFT owner) in 1-2 hours. You can monitor the status in transactions tab.',
+            type: 'info',
+          },
+        ],
         quoteToken: convertToV2TokenInfo(uni.depositTokens[0]),
       },
     );
