@@ -18,6 +18,10 @@ export interface StrategyTxProps {
   actionType: 'deposit' | 'withdraw';
   amount: MyNumber;
   tokenAddr: string;
+  block_number: number;
+  txIndex: number;
+  eventIndex: number;
+  request_id?: string; // for withdraw NFT
 }
 
 // Standard tx info to be stored in local storage
@@ -34,7 +38,11 @@ export interface TxHistory {
     timestamp: number;
     type: string;
     txHash: string;
+    request_id?: string;
     asset: string;
+    block_number: number;
+    txIndex: number;
+    eventIndex: number;
     __typename: 'Investment_flows';
   }[];
 }
@@ -50,9 +58,13 @@ async function getTxHistory(
       query: gql`
         query Query($where: Investment_flowsWhereInput) {
           findManyInvestment_flows(where: $where) {
+            block_number
+            txIndex
+            eventIndex
             amount
             timestamp
             type
+            request_id
             txHash
             asset
           }
@@ -71,7 +83,29 @@ async function getTxHistory(
       // fetchPolicy: 'network-only'
     });
 
-    return data;
+    // merge types redeem and claim.
+    // if exists a tx of type claim for same request id, claim is selected, else redeem is selected
+    // but only one request_id for a given tx
+    const mergedTxs: TxHistory['findManyInvestment_flows'] = [];
+    const txMap: Record<string, TxHistory['findManyInvestment_flows'][number]> =
+      {};
+
+    data.findManyInvestment_flows.forEach((tx: any) => {
+      if (tx.type == 'redeem' || tx.type == 'claim') {
+        if (!txMap[tx.request_id]) {
+          txMap[tx.request_id] = tx;
+        } else if (tx.type === 'claim') {
+          txMap[tx.request_id] = tx;
+        }
+      } else {
+        mergedTxs.push(tx);
+      }
+    });
+    Object.values(txMap).forEach((tx) => {
+      mergedTxs.push(tx);
+    });
+
+    return { findManyInvestment_flows: mergedTxs };
   } catch (error) {
     console.error('GraphQL Error:', error);
     throw error;
@@ -99,20 +133,25 @@ export const TxHistoryAtom = (contract: string, owner: string) =>
             timestamp: Math.round(tx.createdAt.getTime() / 1000),
             type: tx.info.actionType,
             txHash: tx.txHash,
+            request_id: tx.info.request_id,
             asset: tx.info.tokenAddr,
             __typename: 'Investment_flows',
+            block_number: tx.info.block_number,
+            txIndex: tx.info.txIndex,
+            eventIndex: tx.info.eventIndex,
           };
         }),
       );
 
-      console.log('TxHistoryAtom', allTxs);
+      console.log('TxHistoryAtom', allTxs, res.findManyInvestment_flows);
       // remove any duplicate txs by txHash
       const txMap: any = {}; // txHash: boolean
       const txHashes = allTxs.filter((txInfo) => {
-        if (txMap[txInfo.txHash]) {
+        const uniqueKey = `${txInfo.block_number}-${txInfo.txIndex}-${txInfo.eventIndex}`;
+        if (txMap[uniqueKey]) {
           return false;
         }
-        txMap[txInfo.txHash] = true;
+        txMap[uniqueKey] = true;
         return true;
       });
 

@@ -204,7 +204,7 @@ export function getStrategies() {
   const deltaNeutralxSTRKSTRK = new DeltaNeutralMMVesuEndur(
     'xstrk_sensei',
     xSTRKStrategyInfo,
-    StrategyLiveStatus.HOT,
+    StrategyLiveStatus.ACTIVE,
     {
       maxTVL: xSTRKStrategyInfo.maxTVL.toNumber(),
       alerts: [
