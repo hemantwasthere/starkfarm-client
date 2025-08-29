@@ -215,18 +215,32 @@ export default function Navbar(props: NavbarProps) {
       if (connector) {
         connectSnReact({ connector: connector as any });
       }
+      return true;
     } catch (error) {
       console.error('connectWallet error', error);
+      return false;
     }
   }
 
   useEffect(() => {
     const config = connectorConfig;
     console.log('connecting wallet');
-    connectWallet({
-      ...config,
-      modalMode: 'neverAsk',
-    });
+    async function connect() {
+      let retry = 0;
+      while (retry < 5) {
+        const connected = await connectWallet({
+          ...config,
+          modalMode: 'neverAsk',
+        });
+        if (connected) {
+          console.log('Wallet connected successfully');
+          break;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        retry++;
+      }
+    }
+    connect();
   }, []);
 
   useEffect(() => {

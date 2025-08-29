@@ -2400,13 +2400,14 @@
     viem "^2.19.1"
     zod "^3.22.4"
 
-"@strkfarm/sdk@1.0.60":
-  version "1.0.60"
-  resolved "https://registry.yarnpkg.com/@strkfarm/sdk/-/sdk-1.0.60.tgz#361c4d9d7910546bbdcaf2a8769aea06e0f5be61"
-  integrity sha512-5k1LIi0Gd/+H0Ga7kzpyZgz3JYkPCjC2UFB7wwAk/T0VpNqg12EUQWjmGEYdybWcoV30ngZW7iSKIcxpIkotbA==
+"@strkfarm/sdk@1.0.61":
+  version "1.0.61"
+  resolved "https://registry.yarnpkg.com/@strkfarm/sdk/-/sdk-1.0.61.tgz#05efe212ffb4c4a966aaba606ad886c198519b7e"
+  integrity sha512-j35oNNRJ6d4CQLQFQLYUAZZW1F72yeyprU4JrN6e2spj6efbJwhHozdQuNFzzGcymVoL3UGwMZgaNzzTGJ8X/Q==
   dependencies:
     "@avnu/avnu-sdk" "3.0.2"
     "@ericnordelo/strk-merkle-tree" "^1.0.0"
+    "@noble/curves" "^2.0.0"
     "@scure/starknet" "^2.0.0"
     bignumber.js "4.0.4"
     browser-assert "^1.2.1"
