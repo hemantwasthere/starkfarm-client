@@ -208,6 +208,7 @@ export default function Navbar(props: NavbarProps) {
 
   async function connectWallet(config = connectorConfig) {
     try {
+      console.log(`connectWallet`, config);
       const { connector } = await connect(config);
       console.log(connector, 'connector');
 
@@ -221,9 +222,10 @@ export default function Navbar(props: NavbarProps) {
 
   useEffect(() => {
     const config = connectorConfig;
+    console.log('connecting wallet');
     connectWallet({
       ...config,
-      modalMode: 'canAsk',
+      modalMode: 'neverAsk',
     });
   }, []);
 
