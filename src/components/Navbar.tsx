@@ -223,7 +223,7 @@ export default function Navbar(props: NavbarProps) {
     const config = connectorConfig;
     connectWallet({
       ...config,
-      modalMode: 'neverAsk',
+      modalMode: 'canAsk',
     });
   }, []);
 

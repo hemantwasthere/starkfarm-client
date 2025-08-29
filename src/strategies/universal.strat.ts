@@ -33,6 +33,7 @@ import { ReactNode } from 'react';
 export class UniversalStrategyClass extends IStrategy<UniversalStrategySettings> {
   universalStrategy: UniversalStrategy<UniversalStrategySettings>;
   asset: TokenInfo;
+  fee_factor = 0.1; // 10%
   constructor(
     id: string,
     token: TokenInfo,
@@ -160,7 +161,8 @@ export class UniversalStrategyClass extends IStrategy<UniversalStrategySettings>
 
   async solve(pools: PoolInfo[], amount: string) {
     const yieldInfo = await this.universalStrategy.netAPY();
-    this.netYield = yieldInfo.net;
+    // todo to deduct fee
+    this.netYield = yieldInfo.net * (1 - this.fee_factor);
     console.log('netYield2', this.netYield, Number(amount));
     this.leverage = 1;
 
