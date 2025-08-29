@@ -232,6 +232,7 @@ export default function Navbar(props: NavbarProps) {
           ...config,
           modalMode: 'neverAsk',
         });
+        console.log(`connectWallet attempt ${retry + 1}`, connected);
         if (connected) {
           console.log('Wallet connected successfully');
           break;
