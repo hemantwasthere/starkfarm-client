@@ -92,6 +92,7 @@ export const getRewardsInfo = async (
       underlyingTokenName: u.depositTokens[0].symbol,
       decimals: u.depositTokens[0].decimals,
       rewardToken: u.depositTokens[0].address.address,
+      rewardReceiver: u.additionalInfo.vaultAllocator.address,
     };
   });
 
@@ -190,7 +191,7 @@ export const getRewardsInfo = async (
         maxRewardsPerDay: stratAllowed.maxRewardsPerDay,
         rewardToken: stratAllowed.rewardToken,
         funder,
-        receiver: strat.contract[0].address,
+        receiver: stratAllowed.rewardReceiver,
       });
     }
   }
