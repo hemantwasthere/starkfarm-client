@@ -1,11 +1,11 @@
 {
   "crons": [
     {
-      "path": "https://app.troves.fi/api/strategies",
+      "path": "/api/strategies",
       "schedule": "*/10 * * * *"
     },
     {
-      "path": "https://beta.troves.fi/api/strategies",
+      "path": "/api/strategies",
       "schedule": "*/10 * * * *"
     }
   ]
