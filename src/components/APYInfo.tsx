@@ -21,9 +21,6 @@ export function APYInfo(props: {
 }) {
   const { strategy, strategyAPIResult } = props;
 
-  const defaultAPYTooltip =
-    'Current APY including any fees. Net returns subject to change based on market conditions.';
-
   const leverage = useMemo(() => {
     if (!strategyAPIResult) return 0;
     return strategyAPIResult.leverage || 0;
@@ -41,7 +38,7 @@ export function APYInfo(props: {
     apySplits.push({
       apr: strategyAPIResult.apySplit.rewardsApy,
       title: 'Boosted APY',
-      description: 'Includes boosted rewards',
+      description: CONSTANTS.BOOSTED_YIELD_TOOLTIP_TEXT,
     });
   }
 
