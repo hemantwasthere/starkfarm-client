@@ -12,6 +12,7 @@ import {
 } from '@chakra-ui/react';
 import { StrategyInfo } from '@/store/strategies.atoms';
 import CONSTANTS from '@/constants';
+import { ReactNode } from 'react';
 
 interface FAQTabProps {
   strategy: StrategyInfo<any>;
@@ -61,7 +62,7 @@ export function FAQTab(props: FAQTabProps) {
                   >
                     <AccordionButton>
                       <Box flex="1" textAlign="left">
-                        {faq.question}
+                        {faq.question as string | ReactNode}
                       </Box>
                       <AccordionIcon />
                     </AccordionButton>
@@ -73,7 +74,7 @@ export function FAQTab(props: FAQTabProps) {
                     lineHeight={'20px'}
                     color={'text_secondary'}
                   >
-                    {faq.answer}
+                    {faq.answer as string | ReactNode}
                   </AccordionPanel>
                 </AccordionItem>
               ))}
