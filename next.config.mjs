@@ -3,7 +3,7 @@
 const nextConfig = {
   // output: 'export',
   compiler:
-    process.env.NODE_ENV != 'development'
+    process.env.NODE_ENV == 'development'
       ? {}
       : {
           removeConsole: {

@@ -83,7 +83,11 @@ export const CONSTANTS = {
   },
   MOBILE_MSG: 'Desktop/Tablet only',
   BLOCK_EXPLORER: 'https://voyager.online',
+  BOOSTED_YIELD_TOOLTIP_TEXT: 'Starktember incentives by Starknet',
 };
+
+export const DEFAULT_APY_METHODLOGY =
+  'Current APY including any fees. Net returns subject to change based on market conditions.';
 
 export const TOKENS: TokenInfo[] = [
   ...Global.getDefaultTokens().map((token) => ({

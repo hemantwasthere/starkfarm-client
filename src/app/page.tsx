@@ -1,7 +1,6 @@
 'use client';
 
 import { useDotButton } from '@/components/EmblaCarouselDotButton';
-import Pools from '@/components/Pools';
 import Strategies from '@/components/Strategies';
 import TVL from '@/components/TVL';
 import { useWindowSize } from '@/utils/useWindowSize';
@@ -65,11 +64,11 @@ export default function Home() {
   }
 
   function handleTabsChange(index: number) {
-    if (index === 1) {
-      setRoute('pools');
-    } else {
-      setRoute('strategies');
-    }
+    // if (index === 1) {
+    //   setRoute('pools');
+    // } else {
+    setRoute('strategies');
+    // }
   }
 
   useEffect(() => {
@@ -80,7 +79,7 @@ export default function Home() {
     (async () => {
       const tab = searchParams.get('tab');
       if (tab === 'pools') {
-        setTabIndex(1);
+        setTabIndex(0); // actually 1, but put 0 since yields are commented
       } else {
         setTabIndex(0);
       }
@@ -141,9 +140,9 @@ export default function Home() {
               mixpanel.track('Strategies opened');
             }}
           >
-            Strategies✨
+            Yield Strategies✨
           </Tab>
-          <Tab
+          {/* <Tab
             color={'text_secondary'}
             _selected={{ color: 'purple', fontWeight: 'bold' }}
             onClick={() => {
@@ -151,7 +150,7 @@ export default function Home() {
             }}
           >
             Find yields
-          </Tab>
+          </Tab> */}
         </TabList>
         <TabIndicator
           mt="-1.5px"
@@ -173,7 +172,7 @@ export default function Home() {
           >
             <Strategies />
           </TabPanel>
-          <TabPanel
+          {/* <TabPanel
             bg="color_3"
             width={'100%'}
             float={'left'}
@@ -183,7 +182,7 @@ export default function Home() {
             padding={'1rem 0'}
           >
             <Pools />
-          </TabPanel>
+          </TabPanel> */}
         </TabPanels>
       </Tabs>
       {/* <hr style={{width: '100%', borderColor: '#5f5f5f', float: 'left', margin: '20px 0'}}/> */}

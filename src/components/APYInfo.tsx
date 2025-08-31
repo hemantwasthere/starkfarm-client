@@ -1,11 +1,10 @@
+import CONSTANTS, { DEFAULT_APY_METHODLOGY } from '@/constants';
 import { StrategyInfo } from '@/store/strategies.atoms';
 import { TrovesStrategyAPIResult } from '@/store/troves.atoms';
 import { MYSTYLES } from '@/style';
 import {
   Flex,
   Tooltip,
-  Box,
-  Text,
   Stat,
   StatLabel,
   StatNumber,
@@ -13,6 +12,8 @@ import {
   Spinner,
 } from '@chakra-ui/react';
 import { useMemo } from 'react';
+import { APYToolTip } from './YieldCard';
+import { APRSplit } from '@/store/pools';
 
 export function APYInfo(props: {
   strategy: StrategyInfo<any>;
@@ -28,48 +29,30 @@ export function APYInfo(props: {
     return strategyAPIResult.leverage || 0;
   }, [strategyAPIResult]);
 
+  const apySplits: APRSplit[] = [
+    {
+      apr: strategyAPIResult.apySplit.baseApy,
+      title: 'Strategy APY',
+      description: 'Includes fees & Defi spring rewards',
+    },
+  ];
+
+  if (strategyAPIResult.apySplit.rewardsApy > 0) {
+    apySplits.push({
+      apr: strategyAPIResult.apySplit.rewardsApy,
+      title: 'Boosted APY',
+      description: 'Includes boosted rewards',
+    });
+  }
+
   return (
     <Flex gap={'8px'}>
       <Tooltip
-        label={
-          <Box fontSize={'13px'}>
-            <Text>{strategy.metadata.apyMethodology || defaultAPYTooltip}</Text>
-            {strategyAPIResult && (
-              <Box
-                marginTop={'10px'}
-                justifyContent={'space-between'}
-                display={'flex'}
-              >
-                <Box>
-                  <Text>Strategy APY:</Text>
-                  <Text fontSize={'12px'} opacity={0.7}>
-                    Including fees and Defi spring rewards
-                  </Text>
-                </Box>
-                <Text fontWeight={'bold'}>
-                  {(strategyAPIResult.apySplit.baseApy * 100).toFixed(2)}%
-                </Text>
-              </Box>
-            )}
-            {strategyAPIResult && strategyAPIResult.apySplit.rewardsApy > 0 && (
-              <Box
-                marginTop={'10px'}
-                justifyContent={'space-between'}
-                display={'flex'}
-              >
-                <Box>
-                  <Text>Rewards APY:</Text>
-                  <Text fontSize={'12px'} opacity={0.7}>
-                    Incentives by Troves
-                  </Text>
-                </Box>
-                <Text fontWeight={'bold'}>
-                  {(strategyAPIResult.apySplit.rewardsApy * 100).toFixed(2)}%
-                </Text>
-              </Box>
-            )}
-          </Box>
-        }
+        label={APYToolTip({
+          apyMethodology:
+            strategy.metadata.apyMethodology || DEFAULT_APY_METHODLOGY,
+          apySplits,
+        })}
         {...MYSTYLES.TOOLTIP.STANDARD}
       >
         <Stat
@@ -100,7 +83,7 @@ export function APYInfo(props: {
 
       {leverage > 1 && (
         <Tooltip
-          label="Boosted rewards from Troves"
+          label={CONSTANTS.BOOSTED_YIELD_TOOLTIP_TEXT}
           {...MYSTYLES.TOOLTIP.STANDARD}
         >
           <Tag

@@ -1,6 +1,7 @@
 import shield from '@/assets/shield.svg';
+import CONSTANTS, { DEFAULT_APY_METHODLOGY } from '@/constants';
 import { addressAtom } from '@/store/claims.atoms';
-import { isPoolRetired, PoolInfo } from '@/store/pools';
+import { APRSplit, isPoolRetired, PoolInfo } from '@/store/pools';
 import { getPoolInfoFromStrategy, sortAtom } from '@/store/protocols';
 import { strategiesAtom } from '@/store/strategies.atoms';
 import { TrovesStrategyAPIResult } from '@/store/troves.atoms';
@@ -161,22 +162,11 @@ export function StrategyInfo(props: YieldCardProps) {
 }
 
 function getAPRWithToolTip(pool: PoolInfo) {
-  const tip = (
-    <Box width={'300px'}>
-      {pool.aprSplits.map((split) => {
-        return (
-          <Flex width={'100%'} key={split.title}>
-            <Text key="1" width={'70%'}>
-              {split.title} {split.description ? `(${split.description})` : ''}
-            </Text>
-            <Text fontSize={'xs'} width={'30%'} textAlign={'left'} key="2">
-              {split.apr === 'Err' ? split.apr : (split.apr * 100).toFixed(2)}%
-            </Text>
-          </Flex>
-        );
-      })}
-    </Box>
-  );
+  const defaultAPYMethodology = DEFAULT_APY_METHODLOGY;
+  const tip = APYToolTip({
+    apyMethodology: pool.apyMethodology || defaultAPYMethodology,
+    apySplits: pool.aprSplits,
+  });
   return (
     <Tooltip hasArrow label={tip} {...MYSTYLES.TOOLTIP.STANDARD}>
       <Box
@@ -237,6 +227,42 @@ function PointsMultiplier(props: {
   );
 }
 
+export function APYToolTip(props: {
+  apyMethodology: string;
+  apySplits: APRSplit[];
+}) {
+  return (
+    <Box fontSize={'13px'}>
+      <Text>{props.apyMethodology}</Text>
+      {props.apySplits.map((apySplit) => (
+        <Box
+          marginTop={'10px'}
+          justifyContent={'space-between'}
+          display={'flex'}
+          key={apySplit.title}
+        >
+          <Box>
+            <Text>{apySplit.title}:</Text>
+            {apySplit.description && (
+              <Text fontSize={'12px'} opacity={0.7}>
+                {apySplit.description}
+              </Text>
+            )}
+          </Box>
+          {apySplit.apr != 'Err' && (
+            <Text fontWeight={'bold'}>{(apySplit.apr * 100).toFixed(2)}%</Text>
+          )}
+          {apySplit.apr == 'Err' && (
+            <Text fontWeight={'bold'} color={'red'}>
+              Error
+            </Text>
+          )}
+        </Box>
+      ))}
+    </Box>
+  );
+}
+
 function StrategyAPY(props: YieldCardProps) {
   const { pool } = props;
   const isRetired = useMemo(() => {
@@ -262,7 +288,7 @@ function StrategyAPY(props: YieldCardProps) {
           {pool.aprSplits.length &&
             pool.aprSplits.some((a) => a.title == 'Rewards APY') && (
               <Tooltip
-                label="Boosted rewards from Troves"
+                label={CONSTANTS.BOOSTED_YIELD_TOOLTIP_TEXT}
                 {...MYSTYLES.TOOLTIP.STANDARD}
               >
                 <Box width={'100%'}>
