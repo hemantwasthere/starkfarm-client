@@ -138,6 +138,7 @@ export default function Home() {
             >
               <Link href={banner.link} isExternal>
                 <ChakraImage
+                  border={'1px solid #ffffff1a'}
                   src={
                     (!isMobile && size.width > 450) || size.width == 0
                       ? banner.desktop
