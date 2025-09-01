@@ -65,10 +65,7 @@ export class EkuboClStrategy extends IStrategy<CLVaultStrategySettings> {
       },
     ];
 
-    const config = getMainnetConfig(
-      process.env.NEXT_PUBLIC_RPC_URL!,
-      'pending',
-    );
+    const config = getMainnetConfig(process.env.NEXT_PUBLIC_RPC_URL!, 'latest');
     const tokens = Global.getDefaultTokens();
     const pricer = new PricerFromApi(config, tokens);
     const clVault = new EkuboCLVault(config, pricer, strategy);

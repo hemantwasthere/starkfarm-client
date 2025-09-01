@@ -77,10 +77,7 @@ export class DeltaNeutralMMVesuEndur extends IStrategy<SenseiVaultSettings> {
     ];
     this.risks = risks;
 
-    const config = getMainnetConfig(
-      process.env.NEXT_PUBLIC_RPC_URL!,
-      'pending',
-    );
+    const config = getMainnetConfig(process.env.NEXT_PUBLIC_RPC_URL!, 'latest');
     const tokens = Global.getDefaultTokens();
     const pricer = new PricerFromApi(config, tokens);
     this.senseiVault = new SenseiVault(config, pricer, strategy);

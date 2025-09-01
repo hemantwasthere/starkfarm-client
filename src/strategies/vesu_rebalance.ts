@@ -51,10 +51,7 @@ export class VesuRebalanceStrategy extends IStrategy<VesuRebalanceSettings> {
       },
     ];
 
-    const config = getMainnetConfig(
-      process.env.NEXT_PUBLIC_RPC_URL!,
-      'pending',
-    );
+    const config = getMainnetConfig(process.env.NEXT_PUBLIC_RPC_URL!, 'latest');
     const tokens = Global.getDefaultTokens();
     const pricer = new PricerFromApi(config, tokens);
     const vesuRebalance = new VesuRebalance(config, pricer, strategy);

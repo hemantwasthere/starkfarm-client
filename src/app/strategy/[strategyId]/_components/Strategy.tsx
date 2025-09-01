@@ -306,13 +306,13 @@ const Strategy = ({ params }: StrategyParams) => {
         sign *
           Number(
             new MyNumber(tx.amount, tokenInfo.decimals).toEtherToFixedDecimals(
-              4,
+              6,
             ),
           )
       );
     }, 0);
     const currentValue = Number(
-      balData.data?.amount.toEtherToFixedDecimals(4) || '0',
+      balData.data?.amount.toEtherToFixedDecimals(6) || '0',
     );
     if (currentValue === 0) return 0;
 

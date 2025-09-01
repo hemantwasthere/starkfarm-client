@@ -492,13 +492,13 @@ export default function Navbar(props: NavbarProps) {
                       {address ? (
                         <Center display="flex" alignItems="center" gap=".5rem">
                           <Image
-                            // src={getWalletIcon(connector?.id ?? '').src}
                             src={
                               starkProfile?.profilePicture ||
                               connector?.id === 'argentMobile'
-                                ? getWalletIcon(connector?.id ?? '').src
-                                : (connector?.icon.toString() ??
-                                  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQa5dG19ABS0ge6iFAgpsvE_ULDUa4fJyT7hg&s')
+                                ? getWalletIcon(connector?.id ?? '')?.src ||
+                                  connector?.icon.toString() ||
+                                  '/fallback-profile-icon.jpeg'
+                                : '/fallback-profile-icon.jpeg'
                             }
                             alt="pfp"
                             width={{ base: '20px', sm: '22px' }}

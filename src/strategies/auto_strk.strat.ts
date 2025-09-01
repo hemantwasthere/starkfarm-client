@@ -209,22 +209,26 @@ export class AutoTokenStrategy extends IStrategy<void> {
       ];
     }
 
-    const baseTokenContract = new Contract(
-      ERC20Abi,
-      baseTokenInfo.token,
-      provider,
-    );
-    const zTokenContract = new Contract(ERC20Abi, zTokenInfo.token, provider);
-    const masterContract = new Contract(
-      MasterAbi,
-      CONSTANTS.CONTRACTS.Master,
-      provider,
-    );
-    const strategyContract = new Contract(
-      AutoStrkAbi,
-      this.strategyAddress,
-      provider,
-    );
+    const baseTokenContract = new Contract({
+      abi: ERC20Abi,
+      address: baseTokenInfo.token,
+      providerOrAccount: provider,
+    });
+    const zTokenContract = new Contract({
+      abi: ERC20Abi,
+      address: zTokenInfo.token,
+      providerOrAccount: provider,
+    });
+    const masterContract = new Contract({
+      abi: MasterAbi,
+      address: CONSTANTS.CONTRACTS.Master,
+      providerOrAccount: provider,
+    });
+    const strategyContract = new Contract({
+      abi: AutoStrkAbi,
+      address: this.strategyAddress,
+      providerOrAccount: provider,
+    });
 
     // base token
     const call11 = baseTokenContract.populate('approve', [
@@ -267,13 +271,17 @@ export class AutoTokenStrategy extends IStrategy<void> {
     }
 
     // const baseTokenContract = new Contract(ERC20Abi, baseTokenInfo.token, provider);
-    const frmTokenContract = new Contract(ERC20Abi, frmToken.token, provider);
+    const frmTokenContract = new Contract({
+      abi: ERC20Abi,
+      address: frmToken.token,
+      providerOrAccount: provider,
+    });
     // const masterContract = new Contract(MasterAbi, CONSTANTS.CONTRACTS.Master, provider);
-    const strategyContract = new Contract(
-      AutoStrkAbi,
-      this.strategyAddress,
-      provider,
-    );
+    const strategyContract = new Contract({
+      abi: AutoStrkAbi,
+      address: this.strategyAddress,
+      providerOrAccount: provider,
+    });
 
     // base token
     // const call11 = baseTokenContract.populate("approve", [masterContract.address, uint256.bnToUint256(amount.toString())])

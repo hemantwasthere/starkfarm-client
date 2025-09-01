@@ -81,11 +81,11 @@ const CommunityPage = () => {
     isOGNFTEligible.isError,
   ]);
 
-  const ogNFTContract = new Contract(
-    NFTAbi,
-    process.env.NEXT_PUBLIC_OG_NFT_CONTRACT || '',
-    provider,
-  );
+  const ogNFTContract = new Contract({
+    abi: NFTAbi,
+    address: process.env.NEXT_PUBLIC_OG_NFT_CONTRACT || '',
+    providerOrAccount: provider,
+  });
 
   const {
     sendAsync: claimOGNFT,
