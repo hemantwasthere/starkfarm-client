@@ -14,7 +14,7 @@ import {
 import ERC20Abi from '@/abi/erc20.abi.json';
 import DeltaNeutralAbi from '@/abi/deltraNeutral.abi.json';
 import MyNumber from '@/utils/MyNumber';
-import { Call, Contract, uint256 } from 'starknet';
+import { Call, Contract, uint256, UINT_256_MAX } from 'starknet';
 import {
   buildStrategyActionHook,
   convertToV2TokenInfo,
@@ -321,16 +321,16 @@ export class DeltaNeutralMM extends IStrategy<void> {
       return [DummyStrategyActionHook([baseTokenInfo])];
     }
 
-    const baseTokenContract = new Contract(
-      ERC20Abi,
-      baseTokenInfo.token,
-      provider,
-    );
-    const strategyContract = new Contract(
-      DeltaNeutralAbi,
-      this.strategyAddress,
-      provider,
-    );
+    const baseTokenContract = new Contract({
+      abi: ERC20Abi,
+      address: baseTokenInfo.token,
+      providerOrAccount: provider,
+    });
+    const strategyContract = new Contract({
+      abi: DeltaNeutralAbi,
+      address: this.strategyAddress,
+      providerOrAccount: provider,
+    });
 
     // base token
     const call11 = baseTokenContract.populate('approve', [
@@ -425,14 +425,17 @@ export class DeltaNeutralMM extends IStrategy<void> {
       return [DummyStrategyActionHook([mainToken])];
     }
 
-    const strategyContract = new Contract(
-      DeltaNeutralAbi,
-      this.strategyAddress,
-      provider,
-    );
+    const strategyContract = new Contract({
+      abi: DeltaNeutralAbi,
+      address: this.strategyAddress,
+      providerOrAccount: provider,
+    });
 
     const finalAmount = isMax
-      ? new MyNumber(uint256.UINT_256_MAX.toString(), amount.decimals)
+      ? new MyNumber(
+          uint256.bnToUint256(UINT_256_MAX.toString()).toString(),
+          amount.decimals,
+        )
       : amount;
     const call = strategyContract.populate('withdraw', [
       uint256.bnToUint256(finalAmount.toString()),

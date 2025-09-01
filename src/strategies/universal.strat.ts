@@ -54,10 +54,7 @@ export class UniversalStrategyClass extends IStrategy<UniversalStrategySettings>
       },
     ];
 
-    const config = getMainnetConfig(
-      process.env.NEXT_PUBLIC_RPC_URL!,
-      'pending',
-    );
+    const config = getMainnetConfig(process.env.NEXT_PUBLIC_RPC_URL!, 'latest');
     const tokens = Global.getDefaultTokens();
     const pricer = new PricerFromApi(config, tokens);
     const universalStrategy = new UniversalStrategy(config, pricer, strategy);

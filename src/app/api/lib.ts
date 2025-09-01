@@ -167,7 +167,11 @@ export const getRewardsInfo = async (
       // if less bal available, use the available balance
       const rewardToken = stratAllowed.rewardToken;
       const cls = await provider.getClassAt(rewardToken);
-      const tokenContract = new Contract(cls.abi, rewardToken, provider);
+      const tokenContract = new Contract({
+        abi: cls.abi,
+        address: rewardToken,
+        providerOrAccount: provider,
+      });
       const available = await tokenContract.balanceOf(funder);
       const availableBal =
         Number(

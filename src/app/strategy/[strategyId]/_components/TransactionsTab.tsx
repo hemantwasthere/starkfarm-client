@@ -66,7 +66,7 @@ function getTransactionIcon(type: string) {
   let text = 'Withdrawn';
   if (type == 'redeem') {
     text = 'Withdraw in progress';
-  } else if (type == 'claim') {
+  } else if (type == 'claim' || type == 'withdraw') {
     text = 'Withdrawn';
   } else {
     throw new Error(`Unknown transaction type: ${type}`);
