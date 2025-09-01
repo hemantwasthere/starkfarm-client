@@ -3,6 +3,7 @@
 import { useDotButton } from '@/components/EmblaCarouselDotButton';
 import Strategies from '@/components/Strategies';
 import TVL from '@/components/TVL';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { useWindowSize } from '@/utils/useWindowSize';
 
 import {
@@ -13,8 +14,10 @@ import {
   TabPanel,
   TabPanels,
   Tabs,
+  Image as ChakraImage,
   TabIndicator,
   Text,
+  Link,
 } from '@chakra-ui/react';
 import { useAccount } from '@starknet-react/core';
 import Autoplay from 'embla-carousel-autoplay';
@@ -29,15 +32,15 @@ const banner_images = [
   //   mobile: '/banners/strkfarm_braavos_mobile.svg',
   //   link: 'https://starknet.quest/quest/235',
   // },
+  // {
+  //   desktop: '/banners/endur.svg',
+  //   mobile: '/banners/endur_mobile.svg',
+  //   link: 'https://endur.fi/r/troves',
+  // },
   {
-    desktop: '/banners/endur.svg',
-    mobile: '/banners/endur_mobile.svg',
-    link: 'https://endur.fi/r/troves',
-  },
-  {
-    desktop: '/banners/seed_grant.svg',
-    mobile: '/banners/seed_grant_small.jpg',
-    link: 'https://x.com/troves/status/1787783906982260881',
+    desktop: '/banners/troves_starktember.svg',
+    mobile: '/banners/troves_starktember_mobile.svg',
+    link: 'https://x.com/trovesfi',
   },
 ];
 
@@ -86,6 +89,8 @@ export default function Home() {
     })();
   }, [searchParams]);
 
+  const isMobile = useIsMobile();
+
   return (
     <Container
       maxWidth={'1152px'}
@@ -119,6 +124,35 @@ export default function Home() {
         >
           Discover and invest in custom-built yield strategies.
         </Text>
+      </Box>
+
+      <Box className="embla" ref={emblaRef} margin={0} width={'100%'}>
+        <Box className="embla__container" cursor={'pointer'}>
+          {banner_images.map((banner, index) => (
+            <Box
+              className="embla__slide"
+              position="relative"
+              height={'auto'}
+              key={index}
+              padding={'0px 0 20px'}
+            >
+              <Link href={banner.link} isExternal>
+                <ChakraImage
+                  src={
+                    (!isMobile && size.width > 450) || size.width == 0
+                      ? banner.desktop
+                      : banner.mobile
+                  }
+                  height={'auto'}
+                  boxShadow={'none'}
+                  width="100%"
+                  alt="Banner"
+                  style={{ objectFit: 'cover', borderRadius: '10px' }}
+                />
+              </Link>
+            </Box>
+          ))}
+        </Box>
       </Box>
 
       <TVL />

@@ -8,14 +8,13 @@ import { Getter, Setter, atom } from 'jotai';
 import toast from 'react-hot-toast';
 import { RpcProvider, TransactionExecutionStatus } from 'starknet';
 import { StrategyInfo, strategiesAtom } from './strategies.atoms';
-import { createAtomWithStorage } from './utils.atoms';
 import { atomWithQuery } from 'jotai-tanstack-query';
 import { gql } from '@apollo/client';
 import apolloClient from '@/utils/apolloClient';
 
 export interface StrategyTxProps {
   strategyId: string;
-  actionType: 'deposit' | 'withdraw';
+  actionType: 'deposit' | 'withdraw' | 'redeem' | 'claim';
   amount: MyNumber;
   tokenAddr: string;
   block_number: number;
@@ -80,7 +79,7 @@ async function getTxHistory(
           },
         },
       },
-      // fetchPolicy: 'network-only'
+      fetchPolicy: 'no-cache', // ignores cache completely
     });
 
     // merge types redeem and claim.
@@ -127,27 +126,39 @@ export const TxHistoryAtom = (contract: string, owner: string) =>
       const newTxs = get(newTxsAtom);
       console.log('TxHistoryAtom newTxs', newTxs);
       const allTxs = res.findManyInvestment_flows.concat(
-        newTxs.map((tx) => {
-          return {
-            amount: tx.info.amount.toString(),
-            timestamp: Math.round(tx.createdAt.getTime() / 1000),
-            type: tx.info.actionType,
-            txHash: tx.txHash,
-            request_id: tx.info.request_id,
-            asset: tx.info.tokenAddr,
-            __typename: 'Investment_flows',
-            block_number: tx.info.block_number,
-            txIndex: tx.info.txIndex,
-            eventIndex: tx.info.eventIndex,
-          };
-        }),
+        newTxs
+          .filter((newTx) => {
+            // must not exist in indexed data
+            return !res.findManyInvestment_flows.find(
+              (tx) =>
+                standariseAddress(tx.txHash) ===
+                standariseAddress(newTx.txHash),
+            );
+          })
+          .map((tx) => {
+            return {
+              amount: tx.info.amount.toString(),
+              timestamp: Math.round(tx.createdAt.getTime() / 1000),
+              type: tx.info.actionType,
+              txHash: tx.txHash,
+              request_id: tx.info.request_id,
+              asset: tx.info.tokenAddr,
+              __typename: 'Investment_flows',
+              block_number: tx.info.block_number,
+              txIndex: tx.info.txIndex,
+              eventIndex: tx.info.eventIndex,
+            };
+          }),
       );
 
       console.log('TxHistoryAtom', allTxs, res.findManyInvestment_flows);
       // remove any duplicate txs by txHash
       const txMap: any = {}; // txHash: boolean
       const txHashes = allTxs.filter((txInfo) => {
-        const uniqueKey = `${txInfo.block_number}-${txInfo.txIndex}-${txInfo.eventIndex}`;
+        let uniqueKey = `${txInfo.block_number}-${txInfo.txIndex}-${txInfo.eventIndex}`;
+        if (txInfo.block_number == 0) {
+          uniqueKey = txInfo.txHash;
+        }
         if (txMap[uniqueKey]) {
           return false;
         }
@@ -187,19 +198,13 @@ async function deserialiseTxInfo(key: string, initialValue: TransactionInfo[]) {
   return txs;
 }
 
-// Atom to store tx history in local storage
-export const transactionsAtom = createAtomWithStorage<TransactionInfo[]>(
-  'transactions',
-  [],
-  deserialiseTxInfo,
-);
-
 // call this func to add a new tx to the tx history
 // initiates a toast notification
 export const monitorNewTxAtom = atom(
   null,
   async (get, set, tx: TransactionInfo) => {
     console.log('monitorNewTxAtom', tx);
+    set(newTxsAtom, (prev) => [...prev, tx]);
     await initToast(tx, get, set);
   },
 );
@@ -214,11 +219,11 @@ async function waitForTransaction(
   });
   console.log('waitForTransaction', tx);
   await isTxAccepted(tx.txHash);
+
   console.log('waitForTransaction done', tx);
-  const txs = await get(transactionsAtom);
+  const txs = await get(newTxsAtom);
   tx.status = 'success';
-  txs.push(tx);
-  set(transactionsAtom, txs);
+  set(newTxsAtom, txs);
 }
 
 // Somehow waitForTransaction is giving delayed confirmation
@@ -235,9 +240,9 @@ async function isTxAccepted(txHash: string) {
     try {
       txInfo = await provider.getTransactionStatus(txHash);
     } catch (error) {
-      console.error('isTxAccepted error', error);
       retry++;
       if (retry > maxRetries) {
+        console.error('isTxAccepted error', error, { retry });
         throw new Error('Transaction status unknown');
       }
       await new Promise((resolve) => setTimeout(resolve, 2000));

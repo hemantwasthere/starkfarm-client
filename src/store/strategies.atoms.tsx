@@ -217,6 +217,7 @@ export function getStrategies() {
       isPaused: false,
       isInMaintenance: false,
       isAudited: false,
+      isInstantWithdrawal: true,
       quoteToken: convertToV2TokenInfo(getTokenInfoFromName('STRK')),
     },
   );
@@ -255,6 +256,7 @@ export function getStrategies() {
           //   tab: 'all',
           // },
         ],
+        isInstantWithdrawal: true,
         quoteToken: convertToV2TokenInfo(
           getTokenInfoFromName(v.depositTokens[0]?.symbol || ''),
         ),
@@ -280,6 +282,7 @@ export function getStrategies() {
             tab: 'all',
           },
         ],
+        isInstantWithdrawal: true,
         quoteToken: convertToV2TokenInfo(
           getTokenInfoFromName(v.depositTokens[1]?.symbol || ''),
         ),
@@ -307,6 +310,7 @@ export function getStrategies() {
             type: 'info',
           },
         ],
+        isInstantWithdrawal: false,
         quoteToken: convertToV2TokenInfo(uni.depositTokens[0]),
       },
     );

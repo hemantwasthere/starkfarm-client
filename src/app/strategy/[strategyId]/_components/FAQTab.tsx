@@ -115,7 +115,7 @@ export function FAQTab(props: FAQTabProps) {
             </Text>
           </Flex>
 
-          <Link href={CONSTANTS.COMMUNITY_TG}>
+          <Link href={CONSTANTS.COMMUNITY_TG} target="_blank">
             <Button
               bg={'transparent'}
               padding={'12px 20px'}

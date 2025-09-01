@@ -335,7 +335,9 @@ const AmountInput = forwardRef(
                     color="text_primary"
                     fontWeight={'600'}
                   >
-                    {balance.toEtherToFixedDecimals(4)}
+                    {balance.toEtherToFixedDecimals(
+                      selectedMarket.displayDecimals || 4,
+                    )}
                   </Text>
                 </Tooltip>
                 <Button

@@ -165,12 +165,10 @@ function DesktopTransactionHistory(props: { transactions: ITransaction[] }) {
                       {index + 1}.
                     </Td>
                     <Td color={'text_secondary'} fontSize={'14px'}>
-                      {Number(
-                        new MyNumber(
-                          tx.amount,
-                          decimals!,
-                        ).toEtherToFixedDecimals(token.displayDecimals),
-                      ).toLocaleString()}{' '}
+                      {new MyNumber(
+                        tx.amount,
+                        decimals!,
+                      ).toEtherToFixedDecimals(token.displayDecimals)}{' '}
                       {token?.name}
                     </Td>
                     <Td color={'text_secondary'} fontSize={'14px'}>
