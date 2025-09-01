@@ -52,7 +52,7 @@ export async function POST(req: Request) {
     nodeUrl: process.env.NEXT_PUBLIC_RPC_URL!,
   });
 
-  const myAccount = new Account(provider, address, '');
+  const myAccount = new Account({ provider, address, signer: '' });
 
   let isValid = false;
 

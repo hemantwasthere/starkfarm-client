@@ -20,7 +20,6 @@ import {
   ZeroAmountsInfo,
 } from '@/utils';
 import { PoolInfo } from '@/store/pools';
-import { uint256 } from 'starknet';
 import {
   IStrategyMetadata,
   Web3Number,
@@ -292,7 +291,7 @@ export class DeltaNeutralMMVesuEndur extends IStrategy<SenseiVaultSettings> {
     }
 
     const finalAmount = isMax
-      ? new MyNumber(uint256.UINT_256_MAX.toString(), amount.decimals)
+      ? new MyNumber(BigInt(2 ** 256).toString(), amount.decimals)
       : amount;
     const calls = await this.senseiVault.withdrawCall(
       {

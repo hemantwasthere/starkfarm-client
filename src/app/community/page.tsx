@@ -106,7 +106,7 @@ const CommunityPage = () => {
   const ogNFTAddr: `0x${string}` = (process.env.NEXT_PUBLIC_OG_NFT_CONTRACT ||
     '0x0') as `0x${string}`;
   const { data: ogNFTBalance, status: balanceQueryStatus } = useReadContract({
-    abi: NFTAbi,
+    abi: NFTAbi as any,
     address: ogNFTAddr,
     functionName: 'balanceOf',
     args: [address || '0x0', 1],
