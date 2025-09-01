@@ -103,7 +103,7 @@ export async function POST(req: Request) {
 
   if (!isValid) {
     try {
-      const cls = await provider.getClassAt(address, 'pending');
+      const cls = await provider.getClassAt(address, 'latest');
       // means account is deployed
       return NextResponse.json({
         success: false,

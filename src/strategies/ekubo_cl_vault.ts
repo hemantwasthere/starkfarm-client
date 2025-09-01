@@ -267,7 +267,7 @@ export class EkuboClStrategy extends IStrategy<CLVaultStrategySettings> {
   };
 
   async solve(pools: PoolInfo[], amount: string) {
-    const yieldInfo = await this.clVault.netAPY('pending', 16000);
+    const yieldInfo = await this.clVault.netAPY('latest', 16000);
     this.netYield = yieldInfo;
     this.leverage = 1;
 
