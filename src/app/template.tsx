@@ -7,6 +7,7 @@ import {
   ChakraBaseProvider,
   Container,
   Flex,
+  Text,
   extendTheme,
 } from '@chakra-ui/react';
 import { mainnet } from '@starknet-react/chains';
@@ -140,6 +141,14 @@ export default function Template({ children }: { children: React.ReactNode }) {
 
   const isMobile = useIsMobile();
 
+  function Loading() {
+    return (
+      <Text color={'white'} padding={'20px auto'} textAlign={'center'}>
+        Loading
+      </Text>
+    );
+  }
+
   return (
     <JotaiProvider store={MY_STORE}>
       <StarknetConfig
@@ -151,7 +160,7 @@ export default function Template({ children }: { children: React.ReactNode }) {
       >
         <ChakraBaseProvider theme={theme}>
           <Flex minHeight={'100vh'} bgColor={'mybg'}>
-            <React.Suspense>
+            <React.Suspense fallback={<Loading />}>
               <Container
                 display={'flex'}
                 flexDirection={'column'}

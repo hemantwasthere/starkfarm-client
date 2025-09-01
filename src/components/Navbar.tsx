@@ -22,6 +22,7 @@ import {
   StarknetkitConnector,
   useStarknetkitConnectModal,
   disconnect as starknetKitDisconnect,
+  connect,
 } from 'starknetkit';
 
 import argentMobile from '@/assets/argentMobile.svg';
@@ -210,21 +211,21 @@ export default function Navbar(props: NavbarProps) {
 
   async function connectWallet(config = connectorConfig) {
     try {
-      const { connector } = await starknetkitConnectModal();
-      if (!connector) {
-        return;
-      }
-
-      await connectSnReact({ connector: connector as any });
-
-      // console.log(`connectWallet`, config);
-      // const { connector } = await connect(config);
-      // console.log(connector, 'connector');
-
-      // if (connector) {
-      //   connectSnReact({ connector: connector as any });
+      // const { connector } = await starknetkitConnectModal();
+      // if (!connector) {
+      //   return;
       // }
-      // return true;
+
+      // await connectSnReact({ connector: connector as any });
+
+      console.log(`connectWallet`, config);
+      const { connector } = await connect(config);
+      console.log(connector, 'connector');
+
+      if (connector) {
+        connectSnReact({ connector: connector as any });
+      }
+      return true;
     } catch (error) {
       console.error('connectWallet error', error);
       return false;
@@ -234,7 +235,7 @@ export default function Navbar(props: NavbarProps) {
   useEffect(() => {
     const config = connectorConfig;
     console.log('connecting wallet');
-    // connectWallet(config);
+    connectWallet({ ...config, modalMode: 'neverAsk' });
   }, []);
 
   useEffect(() => {
