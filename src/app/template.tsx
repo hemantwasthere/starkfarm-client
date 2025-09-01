@@ -7,7 +7,7 @@ import {
   ChakraBaseProvider,
   Container,
   Flex,
-  Text,
+  Spinner,
   extendTheme,
 } from '@chakra-ui/react';
 import { mainnet } from '@starknet-react/chains';
@@ -143,9 +143,21 @@ export default function Template({ children }: { children: React.ReactNode }) {
 
   function Loading() {
     return (
-      <Text color={'white'} padding={'20px auto'} textAlign={'center'}>
-        Loading
-      </Text>
+      <Flex
+        height="100vh"
+        width="100vw"
+        justify="center"
+        align="center"
+        bg="black" // optional, so white spinner is visible
+      >
+        <Spinner
+          thickness="4px"
+          speed="0.65s"
+          emptyColor="gray.700"
+          color="white"
+          size="xl"
+        />
+      </Flex>
     );
   }
 

@@ -1,9 +1,21 @@
-import { Text } from '@chakra-ui/react';
+import { Spinner, Flex } from '@chakra-ui/react';
 
 export default function Loading() {
   return (
-    <Text color={'white'} padding={'20px auto'} textAlign={'center'}>
-      Loading
-    </Text>
+    <Flex
+      height="100vh"
+      width="100vw"
+      justify="center"
+      align="center"
+      bg="black" // optional, so white spinner is visible
+    >
+      <Spinner
+        thickness="4px"
+        speed="0.65s"
+        emptyColor="gray.700"
+        color="white"
+        size="xl"
+      />
+    </Flex>
   );
 }
