@@ -33,7 +33,6 @@
     "@nikolovlazar/chakra-ui-prose": "1.2.1",
     "@noble/curves": "^2.0.0",
     "@prisma/client": "5.18.0",
-    "@scure/starknet": "^2.0.0",
     "@starknet-react/chains": "3.0.0",
     "@starknet-react/core": "3.0.1",
     "@strkfarm/sdk": "1.0.61",
