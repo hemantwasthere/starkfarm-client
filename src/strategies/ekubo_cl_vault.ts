@@ -62,9 +62,6 @@ export class EkuboClStrategy extends IStrategy<CLVaultStrategySettings> {
         decimals: 18,
         displayDecimals: 2,
         logo: CONSTANTS.LOGOS.STRK, // todo make it to dual token
-        minAmount: MyNumber.fromEther('0.01', 18),
-        maxAmount: MyNumber.fromEther('10000000000000', 18),
-        stepAmount: MyNumber.fromEther('0.01', 18),
       },
     ];
 

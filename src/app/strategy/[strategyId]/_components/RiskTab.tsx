@@ -147,7 +147,7 @@ export function RiskTab(props: RiskTabProps) {
                     padding={'4px 8px'}
                     borderRadius={'4px'}
                     bg={
-                      strategy.riskFactor <= 1
+                      strategy.riskFactor <= 2
                         ? 'light_green_2'
                         : strategy.riskFactor < 3
                           ? 'yellow_2'

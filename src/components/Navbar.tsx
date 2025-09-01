@@ -16,11 +16,12 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
-import { useAtom, useSetAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 import {
-  connect,
   ConnectOptionsWithConnectors,
   StarknetkitConnector,
+  useStarknetkitConnectModal,
+  disconnect as starknetKitDisconnect,
 } from 'starknetkit';
 
 import argentMobile from '@/assets/argentMobile.svg';
@@ -29,7 +30,6 @@ import CONSTANTS from '@/constants';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { getERC20Balance } from '@/store/balance.atoms';
 import { addressAtom } from '@/store/claims.atoms';
-import { lastWalletAtom } from '@/store/utils.atoms';
 import {
   getEndpoint,
   getTokenInfoFromName,
@@ -177,8 +177,12 @@ export default function Navbar(props: NavbarProps) {
     useDefaultPfp: true,
   });
   const { connect: connectSnReact } = useConnect();
+  const isMobile = useIsMobile();
+  const { starknetkitConnectModal } = useStarknetkitConnectModal({
+    connectors: getConnectors(isMobile) as StarknetkitConnector[],
+  });
 
-  const [lastWallet, setLastWallet] = useAtom(lastWalletAtom);
+  // const [lastWallet, setLastWallet] = useAtom(lastWalletAtom);
 
   const getTokenBalance = async (token: string, address: string) => {
     const tokenInfo = getTokenInfoFromName(token);
@@ -186,8 +190,6 @@ export default function Navbar(props: NavbarProps) {
 
     return balance.amount.toEtherToFixedDecimals(6);
   };
-
-  const isMobile = useIsMobile();
 
   console.log(account, 'account');
 
@@ -208,23 +210,31 @@ export default function Navbar(props: NavbarProps) {
 
   async function connectWallet(config = connectorConfig) {
     try {
-      const { connector } = await connect(config);
-      console.log(connector, 'connector');
-
-      if (connector) {
-        connectSnReact({ connector: connector as any });
+      const { connector } = await starknetkitConnectModal();
+      if (!connector) {
+        return;
       }
+
+      await connectSnReact({ connector: connector as any });
+
+      // console.log(`connectWallet`, config);
+      // const { connector } = await connect(config);
+      // console.log(connector, 'connector');
+
+      // if (connector) {
+      //   connectSnReact({ connector: connector as any });
+      // }
+      // return true;
     } catch (error) {
       console.error('connectWallet error', error);
+      return false;
     }
   }
 
   useEffect(() => {
     const config = connectorConfig;
-    connectWallet({
-      ...config,
-      modalMode: 'neverAsk',
-    });
+    console.log('connecting wallet');
+    // connectWallet(config);
   }, []);
 
   useEffect(() => {
@@ -245,13 +255,13 @@ export default function Navbar(props: NavbarProps) {
   }, [address]);
 
   // Set last wallet when a new wallet is connected
-  useEffect(() => {
-    console.log('lastWallet connector', connector?.name);
-    if (connector) {
-      const name: string = connector.name;
-      setLastWallet(name);
-    }
-  }, [connector]);
+  // useEffect(() => {
+  //   console.log('lastWallet connector', connector?.name);
+  //   if (connector) {
+  //     const name: string = connector.name;
+  //     setLastWallet(name);
+  //   }
+  // }, [connector]);
 
   // set address atom
   useEffect(() => {
@@ -514,7 +524,8 @@ export default function Navbar(props: NavbarProps) {
                         onClick={() => {
                           disconnectAsync().then((data) => {
                             console.log('wallet disconnected');
-                            setLastWallet(null);
+                            // setLastWallet(null);
+                            starknetKitDisconnect({ clearLastWallet: true });
                           });
                         }}
                       >

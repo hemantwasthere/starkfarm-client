@@ -270,11 +270,19 @@ function InternalDeposit(props: DepositProps) {
   const txInfo: StrategyTxProps = useMemo(() => {
     return {
       strategyId: props.strategy.id,
-      actionType: isDeposit ? 'deposit' : 'withdraw',
+      actionType: isDeposit
+        ? 'deposit'
+        : props.strategy.settings.isInstantWithdrawal
+          ? 'withdraw'
+          : 'redeem',
       amount: investedSummary
         ? convertToMyNumber(investedSummary)
         : MyNumber.fromZero(),
       tokenAddr: props.strategy.settings.quoteToken.address.address,
+      request_id: `req_${new Date().getTime()}`,
+      block_number: 0,
+      txIndex: 0,
+      eventIndex: 0,
     };
   }, [props, investedSummary, isDeposit]);
 
