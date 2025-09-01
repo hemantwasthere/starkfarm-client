@@ -14,7 +14,7 @@ import {
 import ERC20Abi from '@/abi/erc20.abi.json';
 import DeltaNeutralAbi from '@/abi/deltraNeutral.abi.json';
 import MyNumber from '@/utils/MyNumber';
-import { Call, Contract, uint256 } from 'starknet';
+import { Call, Contract, uint256, UINT_256_MAX } from 'starknet';
 import {
   buildStrategyActionHook,
   convertToV2TokenInfo,
@@ -433,7 +433,7 @@ export class DeltaNeutralMM extends IStrategy<void> {
 
     const finalAmount = isMax
       ? new MyNumber(
-          uint256.bnToUint256(BigInt(2 ** 256)).toString(),
+          uint256.bnToUint256(UINT_256_MAX.toString()).toString(),
           amount.decimals,
         )
       : amount;
