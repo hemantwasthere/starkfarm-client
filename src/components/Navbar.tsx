@@ -287,9 +287,9 @@ export default function Navbar(props: NavbarProps) {
           fontSize="12px"
           textAlign={'center'}
           padding="6px 5px"
-          color="#a5a5d9"
+          color="yellow"
         >
-          <span style={{ display: 'flex', gap: '2px' }}>
+          {/* <span style={{ display: 'flex', gap: '2px' }}>
             ⚡ New name. Bigger vision. STRKFarm is now{' '}
             <b
               style={{
@@ -299,6 +299,16 @@ export default function Navbar(props: NavbarProps) {
             >
               Troves
             </b>
+          </span> */}
+          <span style={{ display: 'flex', gap: '2px' }}>
+            There is an on-going network incident, transaction might fail.{' '}
+            <Link
+              href="https://x.com/Starknet/status/1962740091937317247"
+              textDecoration={'underline'}
+              target="_blank"
+            >
+              Learn more.
+            </Link>
           </span>
         </Text>
       </Center>
