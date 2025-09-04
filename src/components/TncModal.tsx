@@ -47,7 +47,7 @@ export const UserTnCAtom = atomWithQuery((get) => {
 });
 
 const TncModal: React.FC<TncModalProps> = (props) => {
-  const { address, account } = useAccount();
+  const { address } = useAccount();
   const [refCode, setReferralCode] = useAtom(referralCodeAtom);
   const searchParams = useSearchParams();
   const userTncInfoRes = useAtomValue(UserTnCAtom);
@@ -117,7 +117,7 @@ const TncModal: React.FC<TncModalProps> = (props) => {
       });
       setIsSigningPending(false);
     }
-    if (!address || !account || !sigData) {
+    if (!address || !sigData) {
       return;
     }
 
@@ -150,7 +150,7 @@ const TncModal: React.FC<TncModalProps> = (props) => {
   }, [sigData, signingError]);
 
   const handleSign = async () => {
-    if (!address || !account) {
+    if (!address) {
       return;
     }
     mixpanel.track('TnC agreed', { address });
