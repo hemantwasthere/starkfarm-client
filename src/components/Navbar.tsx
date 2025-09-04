@@ -289,7 +289,7 @@ export default function Navbar(props: NavbarProps) {
           padding="6px 5px"
           color="yellow"
         >
-          {/* <span style={{ display: 'flex', gap: '2px' }}>
+          <span style={{ display: 'flex', gap: '2px' }}>
             ⚡ New name. Bigger vision. STRKFarm is now{' '}
             <b
               style={{
@@ -299,8 +299,8 @@ export default function Navbar(props: NavbarProps) {
             >
               Troves
             </b>
-          </span> */}
-          <span style={{ display: 'flex', gap: '2px' }}>
+          </span>
+          {/* <span style={{ display: 'flex', gap: '2px' }}>
             There is an on-going network incident, transaction might fail.{' '}
             <Link
               href="https://x.com/Starknet/status/1962740091937317247"
@@ -309,7 +309,7 @@ export default function Navbar(props: NavbarProps) {
             >
               Learn more.
             </Link>
-          </span>
+          </span> */}
         </Text>
       </Center>
       <Box
