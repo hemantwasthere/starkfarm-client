@@ -310,6 +310,7 @@ export function getStrategies() {
             type: 'info',
           },
         ],
+        hideHarvestInfo: true,
         isInstantWithdrawal: false,
         quoteToken: convertToV2TokenInfo(uni.depositTokens[0]),
       },

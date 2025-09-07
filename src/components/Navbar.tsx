@@ -285,7 +285,7 @@ export default function Navbar(props: NavbarProps) {
           fontSize="12px"
           textAlign={'center'}
           padding="6px 5px"
-          color="yellow"
+          color="white"
         >
           <span style={{ display: 'flex', gap: '2px' }}>
             ⚡ New name. Bigger vision. STRKFarm is now{' '}
