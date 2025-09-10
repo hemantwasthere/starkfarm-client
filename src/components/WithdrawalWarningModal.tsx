@@ -4,6 +4,7 @@ import {
   Box,
   Button,
   Flex,
+  Image,
   Modal,
   ModalBody,
   ModalContent,
@@ -12,7 +13,6 @@ import {
   VStack,
   HStack,
 } from '@chakra-ui/react';
-import Image from 'next/image';
 import smileysLogo from '@/assets/smileys.svg';
 import endurExtendedLogo from '@/assets/endur-extended.svg';
 import btcfiLogo from '@/assets/btc-fi.svg';
@@ -32,18 +32,23 @@ export default function WithdrawalWarningModal({
   onKeepEarning,
 }: WithdrawalWarningModalProps) {
   return (
-    <Modal isOpen={isOpen} onClose={onClose} isCentered size="lg">
-      <ModalOverlay bg="#212121B2" />
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      isCentered
+      size={{ base: 'sm', md: 'lg' }}
+    >
+      <ModalOverlay bg="#212121B2" backdropFilter="blur(8px)" />
       <ModalContent
         bg="black"
-        borderRadius="16px"
-        maxW="500px"
+        borderRadius={{ base: '12px', md: '16px' }}
+        maxW={{ base: '90vw', md: '500px' }}
         mx={4}
         position="relative"
       >
         <Box
           position="absolute"
-          top="-100px"
+          top={{ base: '-60px', md: '-100px' }}
           left="50%"
           transform="translateX(-50%)"
           zIndex={10}
@@ -51,17 +56,17 @@ export default function WithdrawalWarningModal({
           <Flex justify="center" align="center" gap={4}>
             <Image
               src={smileysLogo.src}
-              width={215}
-              height={140}
+              width={{ base: 150, md: 215 }}
+              height={{ base: 100, md: 140 }}
               alt="Smileys"
             />
           </Flex>
         </Box>
 
-        <ModalBody pt={16}>
-          <VStack spacing={6} align="stretch">
+        <ModalBody pt={{ base: 12, md: 16 }} px={{ base: 4, md: 8 }}>
+          <VStack spacing={{ base: 4, md: 6 }} align="stretch">
             <Text
-              fontSize="24px"
+              fontSize={{ base: '20px', md: '24px' }}
               fontWeight="bold"
               color="#FFE9B1"
               textAlign="center"
@@ -71,7 +76,7 @@ export default function WithdrawalWarningModal({
             </Text>
 
             <Text
-              fontSize="16px"
+              fontSize={{ base: '14px', md: '16px' }}
               color="#B8B8B8"
               textAlign="center"
               lineHeight="1.5"
@@ -81,24 +86,28 @@ export default function WithdrawalWarningModal({
               coming.
             </Text>
 
-            <VStack spacing={2}>
-              <HStack justify="space-around" spacing={2} width="100%">
+            <VStack spacing={{ base: 3, md: 2 }}>
+              <HStack
+                justify="space-around"
+                spacing={{ base: 1, md: 2 }}
+                width="100%"
+              >
                 <Image
                   src={endurExtendedLogo.src}
-                  width={64}
-                  height={64}
+                  width={24}
+                  height={24}
                   alt="Endur and Extended app support"
                 />
                 <Image
                   src={btcfiLogo.src}
-                  width={64}
-                  height={64}
+                  width={24}
+                  height={24}
                   alt="BTCFI incentives"
                 />
                 <Image
                   src={riskYieldLogo.src}
-                  width={64}
-                  height={64}
+                  width={24}
+                  height={24}
                   alt="Risk diversified and best possible yield"
                 />
               </HStack>
@@ -106,30 +115,30 @@ export default function WithdrawalWarningModal({
               <HStack
                 align="top"
                 justify="space-around"
-                spacing={4}
+                spacing={{ base: 2, md: 4 }}
                 width="100%"
               >
                 <Text
-                  fontSize="12px"
+                  fontSize={{ base: '10px', md: '12px' }}
                   color="#B8B8B8"
                   textAlign="center"
-                  maxWidth="100px"
+                  maxWidth={{ base: '80px', md: '100px' }}
                 >
                   Endur and Extended app support
                 </Text>
                 <Text
-                  fontSize="12px"
+                  fontSize={{ base: '10px', md: '12px' }}
                   color="#B8B8B8"
                   textAlign="center"
-                  maxWidth="100px"
+                  maxWidth={{ base: '80px', md: '100px' }}
                 >
                   BTCFI incentives
                 </Text>
                 <Text
-                  fontSize="12px"
+                  fontSize={{ base: '10px', md: '12px' }}
                   color="#B8B8B8"
                   textAlign="center"
-                  maxWidth="100px"
+                  maxWidth={{ base: '80px', md: '100px' }}
                 >
                   Risk diversified and best possible yield
                 </Text>
@@ -137,7 +146,7 @@ export default function WithdrawalWarningModal({
             </VStack>
 
             <Text
-              fontSize="16px"
+              fontSize={{ base: '14px', md: '16px' }}
               fontWeight="bold"
               color="#F8F8F8"
               textAlign="center"
@@ -146,14 +155,14 @@ export default function WithdrawalWarningModal({
               Let us do all the work and you should continue to chill
             </Text>
 
-            <VStack spacing={3}>
+            <VStack spacing={{ base: 2, md: 3 }}>
               <Button
                 bg="#9069F0"
                 color="black"
-                size="lg"
+                size={{ base: 'md', md: 'lg' }}
                 width="100%"
-                height="50px"
-                fontSize="16px"
+                height={{ base: '44px', md: '50px' }}
+                fontSize={{ base: '14px', md: '16px' }}
                 fontWeight="bold"
                 borderRadius="12px"
                 _hover={{
@@ -171,7 +180,7 @@ export default function WithdrawalWarningModal({
                 variant="ghost"
                 color="#909090"
                 size="sm"
-                fontSize="12px"
+                fontSize={{ base: '11px', md: '12px' }}
                 _hover={{
                   bg: 'transparent',
                 }}
