@@ -27,6 +27,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { TwitterShareButton } from 'react-share';
 import { Call } from 'starknet';
 import ConfirmationDialog from './ConfirmationDialog';
+import WithdrawalWarningModal from './WithdrawalWarningModal';
 import MyNumber from '@/utils/MyNumber';
 
 interface TxButtonProps {
@@ -48,6 +49,11 @@ export default function TxButton(props: TxButtonProps) {
   const { address } = useAccount();
   const monitorNewTx = useSetAtom(monitorNewTxAtom);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const {
+    isOpen: isWithdrawalWarningOpen,
+    onOpen: onWithdrawalWarningOpen,
+    onClose: onWithdrawalWarningClose,
+  } = useDisclosure();
   const referralCode = useAtomValue(referralCodeAtom);
 
   const isMobile = useIsMobile();
@@ -140,7 +146,22 @@ export default function TxButton(props: TxButtonProps) {
     loading,
   );
 
+  // Check if this strategy should show the withdrawal warning modal
+  const shouldShowWithdrawalWarning = useMemo(() => {
+    return (
+      props.buttonText === 'Redeem' &&
+      props.strategy &&
+      props.strategy.settings.showWithdrawalWarningModal === true
+    );
+  }, [props.buttonText, props.strategy]);
+
   async function preHandleButton() {
+    // Show withdrawal warning modal if configured for this strategy
+    if (shouldShowWithdrawalWarning) {
+      onWithdrawalWarningOpen();
+      return;
+    }
+
     if (props.onClickConfirmationPopup && buttonRef.current) {
       buttonRef.current.handleTrigger();
       try {
@@ -193,8 +214,40 @@ export default function TxButton(props: TxButtonProps) {
     );
   }
 
+  const handleKeepEarning = () => {
+    onWithdrawalWarningClose();
+    // User chose to keep earning, do nothing
+  };
+
+  const handleContinueWithdrawal = () => {
+    onWithdrawalWarningClose();
+    // Proceed with the original withdrawal flow
+    if (props.onClickConfirmationPopup && buttonRef.current) {
+      buttonRef.current.handleTrigger();
+      props
+        .onClickConfirmationPopup(props.txInfo.amount)
+        .then((res) => {
+          setPopupContent(res);
+        })
+        .catch((error) => {
+          setPopupContent(
+            <Box>Something went wrong. Please try again later.</Box>,
+          );
+        });
+    } else {
+      handleButton();
+    }
+  };
+
   return (
     <>
+      <WithdrawalWarningModal
+        isOpen={isWithdrawalWarningOpen}
+        onClose={onWithdrawalWarningClose}
+        onContinueWithdrawal={handleContinueWithdrawal}
+        onKeepEarning={handleKeepEarning}
+      />
+
       <Modal onClose={onClose} isOpen={isOpen} isCentered>
         <ModalOverlay />
         <ModalContent borderRadius=".5rem" maxW="32rem">
