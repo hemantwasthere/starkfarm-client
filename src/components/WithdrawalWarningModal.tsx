@@ -13,6 +13,7 @@ import {
   VStack,
   HStack,
 } from '@chakra-ui/react';
+import mixpanel from 'mixpanel-browser';
 import smileysLogo from '@/assets/smileys.svg';
 import endurExtendedLogo from '@/assets/endur-extended.svg';
 import btcfiLogo from '@/assets/btc-fi.svg';
@@ -23,6 +24,10 @@ interface WithdrawalWarningModalProps {
   onClose: () => void;
   onContinueWithdrawal: () => void;
   onKeepEarning: () => void;
+  userAddress?: string;
+  strategyId?: string;
+  withdrawalAmount?: string;
+  totalHoldings?: string;
 }
 
 export default function WithdrawalWarningModal({
@@ -30,7 +35,35 @@ export default function WithdrawalWarningModal({
   onClose,
   onContinueWithdrawal,
   onKeepEarning,
+  userAddress,
+  strategyId,
+  withdrawalAmount,
+  totalHoldings,
 }: WithdrawalWarningModalProps) {
+  const handleKeepEarningClick = () => {
+    mixpanel.track('Withdrawal Warning Modal - Keep Earning Clicked', {
+      userAddress,
+      strategyId,
+      withdrawalAmount: withdrawalAmount || '0',
+      totalHoldings: totalHoldings || '0',
+      action: 'keep_earning',
+      timestamp: new Date().toISOString(),
+    });
+    onKeepEarning();
+  };
+
+  const handleWithdrawAnywayClick = () => {
+    mixpanel.track('Withdrawal Warning Modal - Withdraw Anyway Clicked', {
+      userAddress,
+      strategyId,
+      withdrawalAmount: withdrawalAmount || '0',
+      totalHoldings: totalHoldings || '0',
+      action: 'withdraw_anyway',
+      timestamp: new Date().toISOString(),
+    });
+    onContinueWithdrawal();
+  };
+
   return (
     <Modal
       isOpen={isOpen}
@@ -171,7 +204,7 @@ export default function WithdrawalWarningModal({
                 _active={{
                   bg: 'purple.700',
                 }}
-                onClick={onKeepEarning}
+                onClick={handleKeepEarningClick}
               >
                 Keep earning my yield
               </Button>
@@ -184,7 +217,7 @@ export default function WithdrawalWarningModal({
                 _hover={{
                   bg: 'transparent',
                 }}
-                onClick={onContinueWithdrawal}
+                onClick={handleWithdrawAnywayClick}
               >
                 Withdraw anyway
               </Button>

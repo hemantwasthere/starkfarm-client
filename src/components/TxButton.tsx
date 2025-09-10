@@ -246,6 +246,10 @@ export default function TxButton(props: TxButtonProps) {
         onClose={onWithdrawalWarningClose}
         onContinueWithdrawal={handleContinueWithdrawal}
         onKeepEarning={handleKeepEarning}
+        userAddress={address}
+        strategyId={props.strategy?.id}
+        withdrawalAmount={props.txInfo.amount.toString()}
+        totalHoldings={props.strategy?.balanceSummaryAtom ? 'calculated' : '0'}
       />
 
       <Modal onClose={onClose} isOpen={isOpen} isCentered>
