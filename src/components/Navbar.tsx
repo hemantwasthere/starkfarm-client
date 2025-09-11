@@ -321,7 +321,7 @@ export default function Navbar(props: NavbarProps) {
             <Image
               src={fulllogo.src}
               alt="logo"
-              height={{ base: '35px', md: '50px' }}
+              height={{ base: '35px', md: '35px' }}
             />
             {/* <Text fontSize={'30px'} color={'purple'} fontWeight={'bold'}>
               Troves

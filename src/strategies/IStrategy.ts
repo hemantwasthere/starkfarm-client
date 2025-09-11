@@ -119,6 +119,7 @@ export interface IStrategySettings {
   isInstantWithdrawal?: boolean;
   quoteToken: TokenInfoV2; // used to show the holdings in this token,
   isTransactionHistDisabled?: boolean;
+  showWithdrawalWarningModal?: boolean; // Show withdrawal warning modal for this strategy
 }
 
 export interface AmountInfo {
