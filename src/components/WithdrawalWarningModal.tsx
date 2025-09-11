@@ -130,61 +130,66 @@ export default function WithdrawalWarningModal({
                 more coming.
               </Text>
 
-              <VStack spacing={{ base: 3, md: 2 }}>
-                <HStack justify="center" spacing={'30px'} width="100%">
+              <HStack
+                justify="center"
+                spacing={{ base: '20px', md: '30px' }}
+                width="100%"
+                align="flex-start"
+              >
+                <VStack spacing={1} align="center" flex="1">
                   <Image
                     src={endurExtendedLogo.src}
                     width={{ base: 12, md: 20 }}
                     height={{ base: 12, md: 20 }}
                     alt="Endur and Extended app support"
                   />
+                  <Text
+                    fontSize={{ base: '10px', md: '12px' }}
+                    color="#B8B8B8"
+                    textAlign="center"
+                    maxWidth={'90px'}
+                    lineHeight="1.2"
+                  >
+                    Endur and Extended app support
+                  </Text>
+                </VStack>
 
+                <VStack spacing={1} align="center" flex="1">
                   <Image
                     src={btcfiLogo.src}
                     width={{ base: 12, md: 20 }}
                     height={{ base: 12, md: 20 }}
                     alt="BTCFI incentives"
                   />
+                  <Text
+                    fontSize={{ base: '10px', md: '12px' }}
+                    color="#B8B8B8"
+                    textAlign="center"
+                    maxWidth={'90px'}
+                    lineHeight="1.2"
+                  >
+                    BTCFI incentives
+                  </Text>
+                </VStack>
+
+                <VStack spacing={1} align="center" flex="1">
                   <Image
                     src={riskYieldLogo.src}
                     width={{ base: 12, md: 20 }}
                     height={{ base: 12, md: 20 }}
                     alt="Risk diversified and best possible yield"
                   />
-                </HStack>
-
-                <HStack
-                  align="top"
-                  justify="center"
-                  spacing={{ base: '5px', md: '30px' }}
-                  width="100%"
-                >
                   <Text
                     fontSize={{ base: '10px', md: '12px' }}
                     color="#B8B8B8"
                     textAlign="center"
                     maxWidth={'90px'}
-                  >
-                    Endur and Extended app support
-                  </Text>
-                  <Text
-                    fontSize={{ base: '10px', md: '12px' }}
-                    color="#B8B8B8"
-                    textAlign="center"
-                    maxWidth={'90px'}
-                  >
-                    BTCFI incentives
-                  </Text>
-                  <Text
-                    fontSize={{ base: '10px', md: '12px' }}
-                    color="#B8B8B8"
-                    textAlign="center"
-                    maxWidth={'90px'}
+                    lineHeight="1.2"
                   >
                     Risk diversified and best possible yield
                   </Text>
-                </HStack>
-              </VStack>
+                </VStack>
+              </HStack>
 
               <Text
                 fontSize={{ base: '12px', md: '12px' }}
