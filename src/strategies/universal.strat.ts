@@ -80,6 +80,7 @@ export class UniversalStrategyClass extends IStrategy<UniversalStrategySettings>
       this.getSafetyFactorLine(),
       'Your original investment is safe. If you deposit 100 tokens, you will always get at least 100 tokens back, unless due to below reasons.',
       'The deposits are supplied on Vesu, a lending protocol that, while unlikely, has a risk of accumulating bad debt.',
+      'Fully automated risk monitoring systems actively monitor and rebalance the pool to maintain a health factor of 1.2-1.3 based on historical conditions. However, Liquidation risk still exists due to market volatility or technical failures.',
       ...risks,
     ];
   }

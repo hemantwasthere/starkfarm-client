@@ -310,8 +310,10 @@ export function getStrategies() {
             type: 'info',
           },
         ],
+        hideHarvestInfo: true,
         isInstantWithdrawal: false,
         quoteToken: convertToV2TokenInfo(uni.depositTokens[0]),
+        showWithdrawalWarningModal: true, // Enable withdrawal warning modal for evergreen strategies
       },
     );
   });
