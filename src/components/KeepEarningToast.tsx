@@ -33,7 +33,7 @@ export default function KeepEarningToast({
                 'linear-gradient(81.81deg, #9069F0 -90.44%, #212121 61.87%)',
             }}
           >
-            <Flex align="center" gap="16px">
+            <Flex align="center" justify="space-between" gap="16px">
               <Flex align="center" gap="8px">
                 <Image
                   src={stackedCoinsLogo.src}
@@ -51,7 +51,7 @@ export default function KeepEarningToast({
                     Smart move!
                   </Text>
                   <Text
-                    fontSize={{ base: '10px', md: '14px' }}
+                    fontSize={{ base: '8px', md: '14px' }}
                     color="#4ADE80"
                     fontWeight="500"
                   >
@@ -67,10 +67,12 @@ export default function KeepEarningToast({
                     src={closeButtonLogo.src}
                     width={4}
                     height={4}
+                    padding={0}
                     alt="Close"
                   />
                 }
                 size={{ base: 'sm', md: 'md' }}
+                padding={0}
                 variant="ghost"
                 onClick={onClose}
                 _hover={{ bg: 'transparent' }}
