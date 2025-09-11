@@ -51,7 +51,7 @@ export default function KeepEarningToast({
                     Smart move!
                   </Text>
                   <Text
-                    fontSize={{ base: '8px', md: '14px' }}
+                    fontSize={{ base: '13px', md: '14px' }}
                     color="#4ADE80"
                     fontWeight="500"
                   >
