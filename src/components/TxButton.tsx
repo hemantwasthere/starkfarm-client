@@ -29,6 +29,7 @@ import { Call } from 'starknet';
 import ConfirmationDialog from './ConfirmationDialog';
 import WithdrawalWarningModal from './WithdrawalWarningModal';
 import MyNumber from '@/utils/MyNumber';
+import { DUMMY_BAL_ATOM } from '@/store/balance.atoms';
 
 interface TxButtonProps {
   txInfo: StrategyTxProps;
@@ -55,6 +56,9 @@ export default function TxButton(props: TxButtonProps) {
     onClose: onWithdrawalWarningClose,
   } = useDisclosure();
   const referralCode = useAtomValue(referralCodeAtom);
+  const balData = useAtomValue(
+    props.strategy?.balanceSummaryAtom || DUMMY_BAL_ATOM,
+  );
 
   const isMobile = useIsMobile();
 
@@ -249,7 +253,7 @@ export default function TxButton(props: TxButtonProps) {
         userAddress={address}
         strategyId={props.strategy?.id}
         withdrawalAmount={props.txInfo.amount.toString()}
-        totalHoldings={props.strategy?.balanceSummaryAtom ? 'calculated' : '0'}
+        totalHoldings={balData.data?.amount.toEtherToFixedDecimals(6) || '0'}
       />
 
       <Modal onClose={onClose} isOpen={isOpen} isCentered>
