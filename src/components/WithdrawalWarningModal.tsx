@@ -137,20 +137,20 @@ export default function WithdrawalWarningModal({
                 >
                   <Image
                     src={endurExtendedLogo.src}
-                    width={24}
-                    height={24}
+                    width={{ base: 20, md: 32 }}
+                    height={{ base: 20, md: 32 }}
                     alt="Endur and Extended app support"
                   />
                   <Image
                     src={btcfiLogo.src}
-                    width={24}
-                    height={24}
+                    width={{ base: 20, md: 32 }}
+                    height={{ base: 20, md: 32 }}
                     alt="BTCFI incentives"
                   />
                   <Image
                     src={riskYieldLogo.src}
-                    width={24}
-                    height={24}
+                    width={{ base: 20, md: 32 }}
+                    height={{ base: 20, md: 32 }}
                     alt="Risk diversified and best possible yield"
                   />
                 </HStack>
