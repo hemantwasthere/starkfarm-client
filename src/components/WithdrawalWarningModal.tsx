@@ -111,7 +111,7 @@ export default function WithdrawalWarningModal({
               <Text
                 fontSize={{ base: '20px', md: '24px' }}
                 fontWeight="bold"
-                color="#FFE9B1"
+                color="white"
                 textAlign="center"
                 lineHeight="1.2"
               >
@@ -124,8 +124,8 @@ export default function WithdrawalWarningModal({
                 textAlign="center"
                 lineHeight="1.5"
               >
-                Stop active managing your funds. Evergreen vaults are designed
-                to automatically give you the best yield and there&apos;s a lot
+                Stop actively managing. Evergreen vaults are designed to
+                automatically give you the best yield and there&apos;s a lot
                 more coming.
               </Text>
 
@@ -195,7 +195,7 @@ export default function WithdrawalWarningModal({
                 textAlign="center"
                 lineHeight="1.5"
               >
-                Let us do all the work and you should continue to chill
+                Let us do all the work so that you can touch some grass
               </Text>
 
               <VStack spacing={{ base: 2, md: 3 }}>
