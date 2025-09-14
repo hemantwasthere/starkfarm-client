@@ -88,6 +88,7 @@ export default function WithdrawalWarningModal({
           maxW={{ base: '90vw', md: '500px' }}
           mx={4}
           position="relative"
+          padding={{ base: '44px 4px 16px 4px', md: '64px 16px 32px 16px' }}
         >
           <Box
             position="absolute"
@@ -106,7 +107,7 @@ export default function WithdrawalWarningModal({
             </Flex>
           </Box>
 
-          <ModalBody pt={{ base: 12, md: 16 }} px={{ base: 4, md: 8 }}>
+          <ModalBody>
             <VStack spacing={{ base: 4, md: 6 }} align="stretch">
               <Text
                 fontSize={{ base: '20px', md: '24px' }}
@@ -119,8 +120,8 @@ export default function WithdrawalWarningModal({
               </Text>
 
               <Text
-                fontSize={{ base: '14px', md: '16px' }}
-                color="#B8B8B8"
+                fontSize={{ base: '10px', md: '14px' }}
+                color="#BCBCBC"
                 textAlign="center"
                 lineHeight="1.5"
               >
@@ -130,42 +131,39 @@ export default function WithdrawalWarningModal({
               </Text>
 
               <VStack spacing={{ base: 3, md: 2 }}>
-                <HStack
-                  justify="space-around"
-                  spacing={{ base: 1, md: 2 }}
-                  width="100%"
-                >
+                <HStack justify="center" spacing={'30px'} width="100%">
                   <Image
                     src={endurExtendedLogo.src}
-                    width={24}
-                    height={24}
+                    width={{ base: 12, md: 20 }}
+                    height={{ base: 12, md: 20 }}
                     alt="Endur and Extended app support"
                   />
+
                   <Image
                     src={btcfiLogo.src}
-                    width={24}
-                    height={24}
+                    width={{ base: 12, md: 20 }}
+                    height={{ base: 12, md: 20 }}
                     alt="BTCFI incentives"
                   />
                   <Image
                     src={riskYieldLogo.src}
-                    width={24}
-                    height={24}
+                    width={{ base: 12, md: 20 }}
+                    height={{ base: 12, md: 20 }}
                     alt="Risk diversified and best possible yield"
                   />
                 </HStack>
 
                 <HStack
                   align="top"
-                  justify="space-around"
-                  spacing={{ base: 2, md: 4 }}
+                  justify="center"
+                  spacing={{ base: '5px', md: '30px' }}
                   width="100%"
                 >
                   <Text
                     fontSize={{ base: '10px', md: '12px' }}
                     color="#B8B8B8"
                     textAlign="center"
-                    maxWidth={{ base: '80px', md: '100px' }}
+                    maxWidth={'90px'}
                   >
                     Endur and Extended app support
                   </Text>
@@ -173,7 +171,7 @@ export default function WithdrawalWarningModal({
                     fontSize={{ base: '10px', md: '12px' }}
                     color="#B8B8B8"
                     textAlign="center"
-                    maxWidth={{ base: '80px', md: '100px' }}
+                    maxWidth={'90px'}
                   >
                     BTCFI incentives
                   </Text>
@@ -181,7 +179,7 @@ export default function WithdrawalWarningModal({
                     fontSize={{ base: '10px', md: '12px' }}
                     color="#B8B8B8"
                     textAlign="center"
-                    maxWidth={{ base: '80px', md: '100px' }}
+                    maxWidth={'90px'}
                   >
                     Risk diversified and best possible yield
                   </Text>
@@ -189,7 +187,7 @@ export default function WithdrawalWarningModal({
               </VStack>
 
               <Text
-                fontSize={{ base: '14px', md: '16px' }}
+                fontSize={{ base: '12px', md: '12px' }}
                 fontWeight="bold"
                 color="#F8F8F8"
                 textAlign="center"
@@ -198,7 +196,7 @@ export default function WithdrawalWarningModal({
                 Let us do all the work so that you can touch some grass
               </Text>
 
-              <VStack spacing={{ base: 2, md: 3 }}>
+              <VStack spacing={{ base: 2, md: '20px' }}>
                 <Button
                   bg="#9069F0"
                   color="black"
@@ -207,7 +205,7 @@ export default function WithdrawalWarningModal({
                   height={{ base: '44px', md: '50px' }}
                   fontSize={{ base: '14px', md: '16px' }}
                   fontWeight="bold"
-                  borderRadius="12px"
+                  borderRadius="8px"
                   _hover={{
                     bg: 'purple.600',
                   }}
