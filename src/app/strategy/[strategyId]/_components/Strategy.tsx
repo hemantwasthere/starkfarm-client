@@ -36,6 +36,7 @@ import { DUMMY_BAL_ATOM, returnEmptyBal } from '@/store/balance.atoms';
 import { addressAtom } from '@/store/claims.atoms';
 import { strategiesAtom, StrategyInfo } from '@/store/strategies.atoms';
 import { TxHistoryAtom } from '@/store/transactions.atom';
+import { EkuboTxHistoryAtom } from '@/store/ekuboTransactions.atom';
 import {
   TrovesBaseAPYsAtom,
   TrovesStrategyAPIResult,
@@ -108,8 +109,8 @@ function NetEarningsText({
   )
     return '-';
   return `${profit?.toFixed(
-    balData.data.tokenInfo?.displayDecimals || 2,
-  )} ${balData.data.tokenInfo?.name}`;
+    balData.data?.tokenInfo?.displayDecimals || 2,
+  )} ${balData.data?.tokenInfo?.name || 'STRK'}`;
 }
 
 function HoldingsAndEarnings({
@@ -272,9 +273,15 @@ const Strategy = ({ params }: StrategyParams) => {
   );
   console.log('balData', balData);
 
+  // Determine if this is an Ekubo strategy
+  const isEkuboStrategy = strategy?.id?.startsWith('ekubo_cl_');
+
   const txHistoryAtom = useMemo(
-    () => TxHistoryAtom(strategyAddress, address!),
-    [address, strategyAddress],
+    () =>
+      isEkuboStrategy
+        ? EkuboTxHistoryAtom(strategyAddress, address!)
+        : TxHistoryAtom(strategyAddress, address!),
+    [address, strategyAddress, isEkuboStrategy],
   );
 
   const txHistoryResult = useAtomValue(txHistoryAtom);
@@ -300,6 +307,26 @@ const Strategy = ({ params }: StrategyParams) => {
   const [profit, setProfit] = useState(0);
   const computeProfit = useCallback(() => {
     if (!txHistory.findManyInvestment_flows.length) return 0;
+
+    if (isEkuboStrategy) {
+      // For Ekubo strategies, calculate net earnings in STRK terms
+      const netEarnings = txHistory.findManyInvestment_flows.reduce(
+        (acc, tx) => {
+          const amount = parseFloat(tx.amount);
+          if (tx.type === 'deposit') {
+            return acc - amount; // Deposits reduce net earnings
+          } else if (tx.type === 'withdraw') {
+            return acc + amount; // Withdrawals increase net earnings
+          }
+          return acc;
+        },
+        0,
+      );
+      setProfit(netEarnings);
+      return;
+    }
+
+    // Original logic for non-Ekubo strategies
     const tokenInfo = getTokenInfoFromAddr(
       txHistory.findManyInvestment_flows[0].asset,
     );
@@ -323,7 +350,7 @@ const Strategy = ({ params }: StrategyParams) => {
 
     if (netDeposits === 0) return 0;
     setProfit(currentValue - netDeposits);
-  }, [txHistory, balData]);
+  }, [txHistory, balData, isEkuboStrategy]);
 
   useEffect(() => {
     if (profit == 0) {

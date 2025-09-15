@@ -31,6 +31,12 @@ interface ITransaction {
   txHash: string;
   asset: string;
   __typename: 'Investment_flows';
+  // Additional fields for Ekubo transactions
+  token0?: string;
+  token1?: string;
+  amount0?: string;
+  amount1?: string;
+  liquidity_delta?: string;
 }
 interface TransactionsTabProps {
   strategy: StrategyInfo<any>;
@@ -170,6 +176,17 @@ function DesktopTransactionHistory(props: { transactions: ITransaction[] }) {
                         decimals!,
                       ).toEtherToFixedDecimals(token.displayDecimals)}{' '}
                       {token?.name}
+                      {/* Show additional Ekubo info if available */}
+                      {tx.amount1 && tx.token1 && (
+                        <Text fontSize={'12px'} color={'text_secondary'} mt={1}>
+                          +{' '}
+                          {new MyNumber(
+                            tx.amount1,
+                            decimals!,
+                          ).toEtherToFixedDecimals(token.displayDecimals)}{' '}
+                          {getTokenInfoFromAddr(tx.token1)?.name || 'Token'}
+                        </Text>
+                      )}
                     </Td>
                     <Td color={'text_secondary'} fontSize={'14px'}>
                       {getTransactionIcon(tx.type)}
@@ -274,6 +291,18 @@ function MobileTransactionHistory(props: { transactions: ITransaction[] }) {
                 ),
               ).toLocaleString()}{' '}
               {token?.name}
+              {/* Show additional Ekubo info if available */}
+              {tx.amount1 && tx.token1 && (
+                <Text fontSize={'13px'} color={'text_secondary'} mt={1}>
+                  +{' '}
+                  {Number(
+                    new MyNumber(tx.amount1, decimals!).toEtherToFixedDecimals(
+                      token.displayDecimals,
+                    ),
+                  ).toLocaleString()}{' '}
+                  {getTokenInfoFromAddr(tx.token1)?.name || 'Token'}
+                </Text>
+              )}
             </Text>
             <Text color="white" fontSize="13px">
               Tx Hash:{' '}

@@ -286,7 +286,7 @@ export function getStrategies() {
         quoteToken: convertToV2TokenInfo(
           getTokenInfoFromName(v.depositTokens[1]?.symbol || ''),
         ),
-        isTransactionHistDisabled: true,
+        isTransactionHistDisabled: false,
       },
     );
   });
