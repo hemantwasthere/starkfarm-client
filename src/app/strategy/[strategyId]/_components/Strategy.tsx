@@ -79,12 +79,19 @@ function HoldingsText({
     console.error('Balance data error:', balData.error);
     return 'Error';
   }
+
+  if (!balData.data.amount) {
+    return '-';
+  }
+
   const value = Number(
     balData.data.amount.toEtherToFixedDecimals(
       balData.data.tokenInfo?.displayDecimals || 2,
     ),
   );
-  if (value === 0) return '-';
+
+  if (isNaN(value) || value === 0) return '-';
+
   return `${balData.data.amount.toEtherToFixedDecimals(
     balData.data.tokenInfo?.displayDecimals || 2,
   )} ${balData.data.tokenInfo?.name}`;

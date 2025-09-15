@@ -1,4 +1,5 @@
 import {
+  Avatar,
   Box,
   Flex,
   Link,
@@ -171,22 +172,24 @@ function DesktopTransactionHistory(props: { transactions: ITransaction[] }) {
                       {index + 1}.
                     </Td>
                     <Td color={'text_secondary'} fontSize={'14px'}>
-                      {new MyNumber(
-                        tx.amount,
-                        decimals!,
-                      ).toEtherToFixedDecimals(token.displayDecimals)}{' '}
-                      {token?.name}
-                      {/* Show additional Ekubo info if available */}
-                      {tx.amount1 && tx.token1 && (
-                        <Text fontSize={'12px'} color={'text_secondary'} mt={1}>
-                          +{' '}
-                          {new MyNumber(
-                            tx.amount1,
-                            decimals!,
-                          ).toEtherToFixedDecimals(token.displayDecimals)}{' '}
-                          {getTokenInfoFromAddr(tx.token1)?.name || 'Token'}
+                      <Flex alignItems="center" gap={2}>
+                        <Avatar
+                          size="xs"
+                          src={token?.logo}
+                          name={token?.name}
+                        />
+                        <Text>
+                          {Math.abs(
+                            Number(
+                              new MyNumber(
+                                tx.amount,
+                                decimals!,
+                              ).toEtherToFixedDecimals(token.displayDecimals),
+                            ),
+                          )}{' '}
+                          {token?.name}
                         </Text>
-                      )}
+                      </Flex>
                     </Td>
                     <Td color={'text_secondary'} fontSize={'14px'}>
                       {getTransactionIcon(tx.type)}
@@ -283,27 +286,44 @@ function MobileTransactionHistory(props: { transactions: ITransaction[] }) {
                 {displayText}
               </Text>
             </Flex>
-            <Text color="white" fontSize="15px">
-              Amount:{' '}
-              {Number(
-                new MyNumber(tx.amount, decimals!).toEtherToFixedDecimals(
-                  token.displayDecimals,
-                ),
-              ).toLocaleString()}{' '}
-              {token?.name}
-              {/* Show additional Ekubo info if available */}
-              {tx.amount1 && tx.token1 && (
-                <Text fontSize={'13px'} color={'text_secondary'} mt={1}>
-                  +{' '}
-                  {Number(
-                    new MyNumber(tx.amount1, decimals!).toEtherToFixedDecimals(
-                      token.displayDecimals,
+            <Flex alignItems="center" flexWrap="wrap" gap={1} mb={1}>
+              <Text color="white" fontSize="15px">
+                Amount:
+              </Text>
+              <Flex alignItems="center" gap={1}>
+                <Avatar size="xs" src={token?.logo} name={token?.name} />
+                <Text color="white" fontSize="15px">
+                  {Math.abs(
+                    Number(
+                      new MyNumber(tx.amount, decimals!).toEtherToFixedDecimals(
+                        token.displayDecimals,
+                      ),
                     ),
                   ).toLocaleString()}{' '}
-                  {getTokenInfoFromAddr(tx.token1)?.name || 'Token'}
+                  {token?.name}
                 </Text>
+              </Flex>
+              {tx.amount1 && tx.token1 && (
+                <Flex alignItems="center" gap={1}>
+                  <Avatar
+                    size="xs"
+                    src={getTokenInfoFromAddr(tx.token1)?.logo}
+                    name={getTokenInfoFromAddr(tx.token1)?.name}
+                  />
+                  <Text fontSize={'13px'} color={'text_secondary'}>
+                    {Math.abs(
+                      Number(
+                        new MyNumber(
+                          tx.amount1,
+                          decimals!,
+                        ).toEtherToFixedDecimals(token.displayDecimals),
+                      ),
+                    ).toLocaleString()}{' '}
+                    {getTokenInfoFromAddr(tx.token1)?.name || 'Token'}
+                  </Text>
+                </Flex>
               )}
-            </Text>
+            </Flex>
             <Text color="white" fontSize="13px">
               Tx Hash:{' '}
               <Link
