@@ -312,7 +312,9 @@ const Strategy = ({ params }: StrategyParams) => {
       // For Ekubo strategies, calculate net earnings in STRK terms
       const netEarnings = txHistory.findManyInvestment_flows.reduce(
         (acc, tx) => {
-          const amount = parseFloat(tx.amount);
+          const amount = Number(
+            new MyNumber(tx.amount, 18).toEtherToFixedDecimals(6),
+          );
           if (tx.type === 'deposit') {
             return acc - amount; // Deposits reduce net earnings
           } else if (tx.type === 'withdraw') {
