@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getMainnetConfig, PricerRedis } from '@strkfarm/sdk';
+import { getDataFromRedis, setDataToRedis } from '../../lib';
 
-export const revalidate = 300; // 5 mins
+export const revalidate = 60; // 5 mins
 export const dynamic = 'force-dynamic';
 
 // only meant for backend calls
@@ -22,7 +23,20 @@ async function initRedis() {
   }
 }
 
+const REDIS_KEY = `${process.env.VK_REDIS_PREFIX}::prices`;
+
 export async function GET(req: Request, context: any) {
+  console.log('GET /api/strategies', req.url);
+  const cacheData = await getDataFromRedis(REDIS_KEY, req.url, revalidate);
+  if (cacheData) {
+    const resp = NextResponse.json(cacheData);
+    resp.headers.set(
+      'Cache-Control',
+      `s-maxage=${revalidate}, stale-while-revalidate=60`,
+    );
+    return resp;
+  }
+
   try {
     const { params } = context;
     const tokenName = params.name;
@@ -39,10 +53,13 @@ export async function GET(req: Request, context: any) {
     const priceInfo = await redisClient.getPrice(tokenName);
     console.log('getPrice redis', priceInfo, tokenName);
     await redisClient.close();
-    const resp = NextResponse.json({
+    const data = {
       ...priceInfo,
       name: tokenName,
-    });
+    };
+    await setDataToRedis(REDIS_KEY, data);
+
+    const resp = NextResponse.json(data);
     resp.headers.set(
       'Cache-Control',
       `s-maxage=${revalidate}, stale-while-revalidate=120`,
