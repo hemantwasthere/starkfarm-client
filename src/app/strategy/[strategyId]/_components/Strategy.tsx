@@ -42,7 +42,6 @@ import {
   TrovesStrategyAPIResult,
 } from '@/store/troves.atoms';
 import { MYSTYLES } from '@/style';
-import { getTokenInfoFromAddr } from '@/utils';
 import MyNumber from '@/utils/MyNumber';
 import { StrategyParams } from '../page';
 import { DetailsTab } from './DetailsTab';
@@ -312,60 +311,42 @@ const Strategy = ({ params }: StrategyParams) => {
   }, [JSON.stringify(txHistoryResult.data)]);
 
   const [profit, setProfit] = useState(0);
-  const computeProfit = useCallback(() => {
+  const computeProfit = useCallback(async () => {
     if (!txHistory.findManyInvestment_flows.length) return 0;
 
-    if (isEkuboStrategy) {
-      // For Ekubo strategies, calculate net earnings in STRK terms
-      const netEarnings = txHistory.findManyInvestment_flows.reduce(
+    try {
+      if (strategy) {
+        const netEarnings = await (strategy as any).calculateNetEarnings(
+          txHistory.findManyInvestment_flows,
+        );
+        setProfit(netEarnings);
+      }
+    } catch (error) {
+      console.error('Error calculating net earnings:', error);
+      // Fallback to simple calculation
+      const simpleNetEarnings = txHistory.findManyInvestment_flows.reduce(
         (acc, tx) => {
           const amount = Number(
             new MyNumber(tx.amount, 18).toEtherToFixedDecimals(6),
           );
           if (tx.type === 'deposit') {
-            return acc - amount; // Deposits reduce net earnings
+            return acc - amount;
           } else if (tx.type === 'withdraw') {
-            return acc + amount; // Withdrawals increase net earnings
+            return acc + amount;
           }
           return acc;
         },
         0,
       );
-      setProfit(netEarnings);
-      return;
+      setProfit(simpleNetEarnings);
     }
-
-    // Original logic for non-Ekubo strategies
-    const tokenInfo = getTokenInfoFromAddr(
-      txHistory.findManyInvestment_flows[0].asset,
-    );
-    if (!tokenInfo) return 0;
-    const netDeposits = txHistory.findManyInvestment_flows.reduce((acc, tx) => {
-      const sign = tx.type === 'deposit' ? 1 : -1;
-      return (
-        acc +
-        sign *
-          Number(
-            new MyNumber(tx.amount, tokenInfo.decimals).toEtherToFixedDecimals(
-              6,
-            ),
-          )
-      );
-    }, 0);
-    const currentValue = Number(
-      balData.data?.amount.toEtherToFixedDecimals(6) || '0',
-    );
-    if (currentValue === 0) return 0;
-
-    if (netDeposits === 0) return 0;
-    setProfit(currentValue - netDeposits);
-  }, [txHistory, balData, isEkuboStrategy]);
+  }, [txHistory, strategy]);
 
   useEffect(() => {
     if (profit == 0) {
       computeProfit();
     }
-  }, [txHistory, balData]);
+  }, [txHistory, computeProfit]);
 
   useEffect(() => {
     mixpanel.track('Strategy page open', { name: params.strategyId });
