@@ -204,13 +204,14 @@ function DesktopTransactionHistory(props: { transactions: ITransaction[] }) {
                                 Number(
                                   new MyNumber(
                                     tx.amount1,
-                                    decimals!,
+                                    getTokenInfoFromAddr(tx.token1).decimals,
                                   ).toEtherToFixedDecimals(
-                                    token.displayDecimals,
+                                    getTokenInfoFromAddr(tx.token1)
+                                      .displayDecimals,
                                   ),
                                 ),
                               )}{' '}
-                              {getTokenInfoFromAddr(tx.token1)?.name || 'Token'}
+                              {getTokenInfoFromAddr(tx.token1).name}
                             </Text>
                           </Flex>
                         )}
@@ -340,8 +341,10 @@ function MobileTransactionHistory(props: { transactions: ITransaction[] }) {
                       Number(
                         new MyNumber(
                           tx.amount1,
-                          decimals!,
-                        ).toEtherToFixedDecimals(token.displayDecimals),
+                          getTokenInfoFromAddr(tx.token1)?.decimals,
+                        ).toEtherToFixedDecimals(
+                          getTokenInfoFromAddr(tx.token1)?.displayDecimals,
+                        ),
                       ),
                     ).toLocaleString()}{' '}
                     {getTokenInfoFromAddr(tx.token1)?.name || 'Token'}
