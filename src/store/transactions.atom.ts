@@ -18,14 +18,14 @@ export interface StrategyTxProps {
   amount: MyNumber;
   tokenAddr: string;
   block_number: number;
-  txIndex: number;
-  eventIndex: number;
+  tx_index: number;
+  event_index: number;
   request_id?: string; // for withdraw NFT
 }
 
 // Standard tx info to be stored in local storage
 export interface TransactionInfo {
-  txHash: string;
+  tx_hash: string;
   info: StrategyTxProps; // can add more types of txs in future
   status: 'pending' | 'success' | 'failed';
   createdAt: Date;
@@ -36,12 +36,12 @@ export interface TxHistory {
     amount: string;
     timestamp: number;
     type: string;
-    txHash: string;
+    tx_hash: string;
     request_id?: string;
     asset: string;
     block_number: number;
-    txIndex: number;
-    eventIndex: number;
+    tx_index: number;
+    event_index: number;
     __typename: 'Investment_flows';
   }[];
 }
@@ -58,13 +58,13 @@ async function getTxHistory(
         query Query($where: Investment_flowsWhereInput) {
           findManyInvestment_flows(where: $where) {
             block_number
-            txIndex
-            eventIndex
+            tx_index
+            event_index
             amount
             timestamp
             type
             request_id
-            txHash
+            tx_hash
             asset
           }
         }
@@ -131,8 +131,8 @@ export const TxHistoryAtom = (contract: string, owner: string) =>
             // must not exist in indexed data
             return !res.findManyInvestment_flows.find(
               (tx) =>
-                standariseAddress(tx.txHash) ===
-                standariseAddress(newTx.txHash),
+                standariseAddress(tx.tx_hash) ===
+                standariseAddress(newTx.tx_hash),
             );
           })
           .map((tx) => {
@@ -140,24 +140,24 @@ export const TxHistoryAtom = (contract: string, owner: string) =>
               amount: tx.info.amount.toString(),
               timestamp: Math.round(tx.createdAt.getTime() / 1000),
               type: tx.info.actionType,
-              txHash: tx.txHash,
+              tx_hash: tx.tx_hash,
               request_id: tx.info.request_id,
               asset: tx.info.tokenAddr,
               __typename: 'Investment_flows',
               block_number: tx.info.block_number,
-              txIndex: tx.info.txIndex,
-              eventIndex: tx.info.eventIndex,
+              tx_index: tx.info.tx_index,
+              event_index: tx.info.event_index,
             };
           }),
       );
 
       console.log('TxHistoryAtom', allTxs, res.findManyInvestment_flows);
-      // remove any duplicate txs by txHash
-      const txMap: any = {}; // txHash: boolean
-      const txHashes = allTxs.filter((txInfo) => {
-        let uniqueKey = `${txInfo.block_number}-${txInfo.txIndex}-${txInfo.eventIndex}`;
+      // remove any duplicate txs by tx_hash
+      const txMap: any = {}; // tx_hash: boolean
+      const tx_hashes = allTxs.filter((txInfo) => {
+        let uniqueKey = `${txInfo.block_number}-${txInfo.tx_index}-${txInfo.event_index}`;
         if (txInfo.block_number == 0) {
-          uniqueKey = txInfo.txHash;
+          uniqueKey = txInfo.tx_hash;
         }
         if (txMap[uniqueKey]) {
           return false;
@@ -166,9 +166,9 @@ export const TxHistoryAtom = (contract: string, owner: string) =>
         return true;
       });
 
-      console.log('TxHistoryAtom txHashes', txHashes);
+      console.log('TxHistoryAtom tx_hashes', tx_hashes);
       return {
-        findManyInvestment_flows: txHashes,
+        findManyInvestment_flows: tx_hashes,
       };
     },
   }));
@@ -218,7 +218,7 @@ async function waitForTransaction(
     nodeUrl: process.env.NEXT_PUBLIC_RPC_URL,
   });
   console.log('waitForTransaction', tx);
-  await isTxAccepted(tx.txHash);
+  await isTxAccepted(tx.tx_hash);
 
   console.log('waitForTransaction done', tx);
   const txs = await get(newTxsAtom);
@@ -228,7 +228,7 @@ async function waitForTransaction(
 
 // Somehow waitForTransaction is giving delayed confirmation
 // even with 5s retry interval. So, using this function instead
-async function isTxAccepted(txHash: string) {
+async function isTxAccepted(tx_hash: string) {
   const provider = new RpcProvider({
     nodeUrl: process.env.NEXT_PUBLIC_RPC_URL,
   });
@@ -238,7 +238,7 @@ async function isTxAccepted(txHash: string) {
   while (keepChecking) {
     let txInfo: any;
     try {
-      txInfo = await provider.getTransactionStatus(txHash);
+      txInfo = await provider.getTransactionStatus(tx_hash);
     } catch (error) {
       retry++;
       if (retry > maxRetries) {

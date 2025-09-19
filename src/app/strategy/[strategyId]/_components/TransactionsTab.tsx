@@ -28,7 +28,7 @@ interface ITransaction {
   amount: string;
   timestamp: number;
   type: string;
-  txHash: string;
+  tx_hash: string;
   asset: string;
   __typename: 'Investment_flows';
 }
@@ -181,10 +181,10 @@ function DesktopTransactionHistory(props: { transactions: ITransaction[] }) {
                         color={'text_secondary'}
                       >
                         <Link
-                          href={`${CONSTANTS.BLOCK_EXPLORER}/tx/${tx.txHash}`}
+                          href={`${CONSTANTS.BLOCK_EXPLORER}/tx/${tx.tx_hash}`}
                           target="_blank"
                         >
-                          {shortAddress(tx.txHash)} <ExternalLinkIcon />
+                          {shortAddress(tx.tx_hash)} <ExternalLinkIcon />
                         </Link>
                       </Text>
                     </Td>
@@ -278,11 +278,11 @@ function MobileTransactionHistory(props: { transactions: ITransaction[] }) {
             <Text color="white" fontSize="13px">
               Tx Hash:{' '}
               <Link
-                href={`${CONSTANTS.BLOCK_EXPLORER}/tx/${tx.txHash}`}
+                href={`${CONSTANTS.BLOCK_EXPLORER}/tx/${tx.tx_hash}`}
                 target="_blank"
                 color="color_7"
               >
-                {shortAddress(tx.txHash)}
+                {shortAddress(tx.tx_hash)}
               </Link>
             </Text>
             <Text color="text_secondary" fontSize="13px">

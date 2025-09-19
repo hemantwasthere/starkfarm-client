@@ -84,7 +84,7 @@ export default function TxButton(props: TxButtonProps) {
       props.resetDepositForm();
       // initiates a toast and adds the tx to tx history if successful
       monitorNewTx({
-        txHash: data.transaction_hash,
+        tx_hash: data.transaction_hash,
         info: props.txInfo,
         status: 'pending', // 'success' | 'failed'
         createdAt: new Date(),
@@ -187,7 +187,7 @@ export default function TxButton(props: TxButtonProps) {
       if (props.buttonText === 'Deposit') onOpen();
       mixpanel.track('Submitted tx', {
         strategyId: props.txInfo.strategyId,
-        txHash: tx.transaction_hash,
+        tx_hash: tx.transaction_hash,
         text: props.text,
         address,
         buttonText: props.buttonText,
