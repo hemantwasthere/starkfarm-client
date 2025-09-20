@@ -10,7 +10,7 @@ import { Category, PoolInfo } from '@/store/pools';
 import {
   convertToV2TokenInfo,
   convertToV2Web3Number,
-  getPriceFromMyAPI,
+  getPrice,
   MyTokenInfo,
   MyWeb3Number,
 } from '@/utils';
@@ -299,8 +299,14 @@ export class IStrategyProps<T> {
       return amount;
     }
 
-    const price = await getPriceFromMyAPI(tokenInfo);
-    const priceQuote = await getPriceFromMyAPI(quoteToken);
+    const price = await getPrice(
+      tokenInfo,
+      `getValueInQuoteToken::1::${source}`,
+    );
+    const priceQuote = await getPrice(
+      quoteToken,
+      `getValueInQuoteToken::2::${source}`,
+    );
 
     const amt = amount.multipliedBy(price).dividedBy(priceQuote);
 
@@ -495,182 +501,6 @@ export class IStrategy<T> extends IStrategyProps<T> {
     this.postSolve();
 
     this.status = StrategyStatus.SOLVED;
-  }
-
-  async calculateNetEarnings(
-    transactions: Array<{
-      amount: string;
-      type: string;
-      asset: string;
-      // Additional fields for dual token strategies
-      amount0?: string;
-      amount1?: string;
-      token0?: string;
-      token1?: string;
-    }>,
-  ): Promise<number> {
-    if (!transactions.length) return 0;
-
-    let totalNetEarnings = 0;
-
-    for (const tx of transactions) {
-      const isDeposit = tx.type === 'deposit';
-      const isWithdraw = tx.type === 'withdraw';
-
-      if (!isDeposit && !isWithdraw) continue;
-
-      // For dual token strategies (like Ekubo), we need to convert both amounts to quote token
-      if (tx.amount0 && tx.amount1 && tx.token0 && tx.token1) {
-        try {
-          // Convert amount0 to quote token
-          const amount0InQuoteToken = await this.convertToQuoteToken(
-            tx.amount0,
-            tx.token0,
-          );
-
-          // Convert amount1 to quote token
-          const amount1InQuoteToken = await this.convertToQuoteToken(
-            tx.amount1,
-            tx.token1,
-          );
-
-          const totalAmountInQuoteToken =
-            amount0InQuoteToken + amount1InQuoteToken;
-
-          if (isDeposit) {
-            totalNetEarnings -= totalAmountInQuoteToken;
-          } else if (isWithdraw) {
-            totalNetEarnings += totalAmountInQuoteToken;
-          }
-        } catch (error) {
-          console.warn(
-            'Error converting dual token amounts to quote token:',
-            error,
-          );
-          // Fallback to primary amount only
-          const primaryAmount = Number(
-            new MyNumber(tx.amount, 18).toEtherToFixedDecimals(6),
-          );
-          if (isDeposit) {
-            totalNetEarnings -= primaryAmount;
-          } else if (isWithdraw) {
-            totalNetEarnings += primaryAmount;
-          }
-        }
-      } else {
-        const amount = Number(
-          new MyNumber(tx.amount, 18).toEtherToFixedDecimals(6),
-        );
-
-        if (isDeposit) {
-          totalNetEarnings -= amount;
-        } else if (isWithdraw) {
-          totalNetEarnings += amount;
-        }
-      }
-    }
-
-    return totalNetEarnings;
-  }
-
-  private async convertToQuoteToken(
-    amount: string,
-    tokenAddress: string,
-  ): Promise<number> {
-    try {
-      // Get the token info for the source token
-      const sourceTokenInfo = this.getTokenInfoFromAddress(tokenAddress);
-      if (!sourceTokenInfo) {
-        throw new Error(`Token info not found for address: ${tokenAddress}`);
-      }
-
-      const amountInEther = Number(
-        new MyNumber(amount, sourceTokenInfo.decimals).toEtherToFixedDecimals(
-          6,
-        ),
-      );
-
-      if (
-        sourceTokenInfo.address === this.settings.quoteToken.address.address
-      ) {
-        return amountInEther;
-      }
-
-      // Get price conversion rate
-      const sourceTokenInfoV2 = convertToV2TokenInfo(sourceTokenInfo);
-      const quoteTokenInfoV2 = convertToV2TokenInfo(this.settings.quoteToken);
-
-      // If both tokens are the same, return as-is
-      if (sourceTokenInfoV2.address === quoteTokenInfoV2.address) {
-        return amountInEther;
-      }
-
-      // Get prices for both tokens in USD
-      const sourcePrice = await getPriceFromMyAPI(sourceTokenInfoV2);
-      const quotePrice = await getPriceFromMyAPI(quoteTokenInfoV2);
-
-      console.log('Price conversion debug:', {
-        sourceToken: sourceTokenInfoV2.name,
-        sourcePrice,
-        quoteToken: quoteTokenInfoV2.name,
-        quotePrice,
-        amountInEther,
-      });
-
-      // Validate prices
-      if (
-        !sourcePrice ||
-        !quotePrice ||
-        isNaN(sourcePrice) ||
-        isNaN(quotePrice)
-      ) {
-        console.warn(
-          'Invalid prices received, falling back to original amount',
-        );
-        return amountInEther;
-      }
-
-      // Convert source token amount to USD, then to quote token
-      const amountInUSD = amountInEther * sourcePrice;
-      const amountInQuoteToken = amountInUSD / quotePrice;
-
-      console.log('Conversion result:', {
-        amountInUSD,
-        amountInQuoteToken,
-      });
-
-      return amountInQuoteToken;
-    } catch (error) {
-      console.error('Error converting to quote token:', error);
-      throw error;
-    }
-  }
-
-  private getTokenInfoFromAddress(address: string): TokenInfo | null {
-    const holdingToken = this.holdingTokens.find(
-      (token) =>
-        'address' in token &&
-        (token.address === address ||
-          ('token' in token && token.token === address)),
-    ) as TokenInfo | undefined;
-    if (holdingToken) return holdingToken;
-
-    const depositToken = this.metadata.depositTokens?.find(
-      (token) => token.address.address === address,
-    );
-    if (depositToken) {
-      return {
-        token: depositToken.address.address,
-        address: depositToken.address.address,
-        decimals: depositToken.decimals,
-        displayDecimals: depositToken.decimals,
-        name: depositToken.name,
-        logo: depositToken.logo,
-        isERC4626: false,
-      };
-    }
-
-    return null;
   }
 
   postSolve() {}

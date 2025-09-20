@@ -114,7 +114,6 @@ async function getStrategyInfo(
       };
     }),
     investmentFlows: strategy.investmentFlows,
-    curator: strategy.metadata.curator,
   };
 
   const rewardsInfo = await getRewardsInfo([

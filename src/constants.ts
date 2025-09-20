@@ -56,6 +56,7 @@ export const CONSTANTS = {
   },
   Troves: {
     BASE_APR_API: '/api/strategies',
+    // BASE_APR_API: 'https://beta.troves.fi/api/strategies',
   },
   MY_SWAP: {
     POOLS_API: '/myswap/data/pools/all.json',
