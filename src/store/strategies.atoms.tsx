@@ -264,7 +264,7 @@ export function getStrategies() {
     );
   });
 
-  const ekuboCLStrats = [EkuboCLVaultStrategies[0]].map((v) => {
+  const ekuboCLStrats = EkuboCLVaultStrategies.map((v) => {
     return new EkuboClStrategy(
       v.name,
       v.description as ReactNode,
@@ -286,7 +286,7 @@ export function getStrategies() {
         quoteToken: convertToV2TokenInfo(
           getTokenInfoFromName(v.depositTokens[1]?.symbol || ''),
         ),
-        isTransactionHistDisabled: true,
+        isTransactionHistDisabled: false,
       },
     );
   });

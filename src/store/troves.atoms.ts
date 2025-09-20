@@ -56,6 +56,7 @@ export interface TrovesStrategyAPIResult {
     apy: number;
   }[];
   investmentFlows: IInvestmentFlow[];
+  curator?: { name: string; logo: string };
 }
 
 export class Troves extends IDapp<TrovesStrategyAPIResult> {
@@ -89,9 +90,9 @@ export class Troves extends IDapp<TrovesStrategyAPIResult> {
           logos: [...rawPool.logos],
         },
         protocol: {
-          name: this.name,
+          name: rawPool.curator ? rawPool.curator.name : this.name,
           link: `/strategy/${rawPool.id}`,
-          logo: this.logo,
+          logo: rawPool.curator ? rawPool.curator.logo : this.logo,
         },
         apr:
           rewardsApy.length && rewardsApy[0].apr != 'Err'

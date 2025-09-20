@@ -36,12 +36,12 @@ import { DUMMY_BAL_ATOM, returnEmptyBal } from '@/store/balance.atoms';
 import { addressAtom } from '@/store/claims.atoms';
 import { strategiesAtom, StrategyInfo } from '@/store/strategies.atoms';
 import { TxHistoryAtom } from '@/store/transactions.atom';
+import { EkuboTxHistoryAtom } from '@/store/ekuboTransactions.atom';
 import {
   TrovesBaseAPYsAtom,
   TrovesStrategyAPIResult,
 } from '@/store/troves.atoms';
 import { MYSTYLES } from '@/style';
-import { getTokenInfoFromAddr } from '@/utils';
 import MyNumber from '@/utils/MyNumber';
 import { StrategyParams } from '../page';
 import { DetailsTab } from './DetailsTab';
@@ -78,12 +78,19 @@ function HoldingsText({
     console.error('Balance data error:', balData.error);
     return 'Error';
   }
+
+  if (!balData.data.amount) {
+    return '-';
+  }
+
   const value = Number(
     balData.data.amount.toEtherToFixedDecimals(
       balData.data.tokenInfo?.displayDecimals || 2,
     ),
   );
-  if (value === 0) return '-';
+
+  if (isNaN(value) || value === 0) return '-';
+
   return `${balData.data.amount.toEtherToFixedDecimals(
     balData.data.tokenInfo?.displayDecimals || 2,
   )} ${balData.data.tokenInfo?.name}`;
@@ -108,8 +115,8 @@ function NetEarningsText({
   )
     return '-';
   return `${profit?.toFixed(
-    balData.data.tokenInfo?.displayDecimals || 2,
-  )} ${balData.data.tokenInfo?.name}`;
+    balData.data?.tokenInfo?.displayDecimals || 2,
+  )} ${balData.data?.tokenInfo?.name || 'STRK'}`;
 }
 
 function HoldingsAndEarnings({
@@ -272,9 +279,15 @@ const Strategy = ({ params }: StrategyParams) => {
   );
   console.log('balData', balData);
 
+  // Determine if this is an Ekubo strategy
+  const isEkuboStrategy = strategy?.id?.startsWith('ekubo_cl_');
+
   const txHistoryAtom = useMemo(
-    () => TxHistoryAtom(strategyAddress, address!),
-    [address, strategyAddress],
+    () =>
+      isEkuboStrategy
+        ? EkuboTxHistoryAtom(strategyAddress, address!)
+        : TxHistoryAtom(strategyAddress, address!),
+    [address, strategyAddress, isEkuboStrategy],
   );
 
   const txHistoryResult = useAtomValue(txHistoryAtom);
@@ -298,38 +311,42 @@ const Strategy = ({ params }: StrategyParams) => {
   }, [JSON.stringify(txHistoryResult.data)]);
 
   const [profit, setProfit] = useState(0);
-  const computeProfit = useCallback(() => {
+  const computeProfit = useCallback(async () => {
     if (!txHistory.findManyInvestment_flows.length) return 0;
-    const tokenInfo = getTokenInfoFromAddr(
-      txHistory.findManyInvestment_flows[0].asset,
-    );
-    if (!tokenInfo) return 0;
-    const netDeposits = txHistory.findManyInvestment_flows.reduce((acc, tx) => {
-      const sign = tx.type === 'deposit' ? 1 : -1;
-      return (
-        acc +
-        sign *
-          Number(
-            new MyNumber(tx.amount, tokenInfo.decimals).toEtherToFixedDecimals(
-              6,
-            ),
-          )
-      );
-    }, 0);
-    const currentValue = Number(
-      balData.data?.amount.toEtherToFixedDecimals(6) || '0',
-    );
-    if (currentValue === 0) return 0;
 
-    if (netDeposits === 0) return 0;
-    setProfit(currentValue - netDeposits);
-  }, [txHistory, balData]);
+    try {
+      if (strategy) {
+        const netEarnings = await (strategy as any).calculateNetEarnings(
+          txHistory.findManyInvestment_flows,
+        );
+        setProfit(netEarnings);
+      }
+    } catch (error) {
+      console.error('Error calculating net earnings:', error);
+      // Fallback to simple calculation
+      const simpleNetEarnings = txHistory.findManyInvestment_flows.reduce(
+        (acc, tx) => {
+          const amount = Number(
+            new MyNumber(tx.amount, 18).toEtherToFixedDecimals(6),
+          );
+          if (tx.type === 'deposit') {
+            return acc - amount;
+          } else if (tx.type === 'withdraw') {
+            return acc + amount;
+          }
+          return acc;
+        },
+        0,
+      );
+      setProfit(simpleNetEarnings);
+    }
+  }, [txHistory, strategy]);
 
   useEffect(() => {
     if (profit == 0) {
       computeProfit();
     }
-  }, [txHistory, balData]);
+  }, [txHistory, computeProfit]);
 
   useEffect(() => {
     mixpanel.track('Strategy page open', { name: params.strategyId });
