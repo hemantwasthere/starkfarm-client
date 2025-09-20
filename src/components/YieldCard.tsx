@@ -134,7 +134,7 @@ export function StrategyInfo(props: YieldCardProps) {
                   {tags.map((tag) => {
                     return (
                       <Badge
-                        bg={getStratCardBadgeBg(tag)}
+                        bg={getStratCardBadgeBg(tag as StrategyLiveStatus)}
                         fontFamily={'sans-serif'}
                         padding="4px 8px"
                         textTransform="capitalize"
@@ -359,7 +359,7 @@ export function StrategyTVL(props: YieldCardProps) {
   const isPoolLive =
     pool.additional &&
     pool.additional.tags[0] &&
-    isLive(pool.additional.tags[0]);
+    isLive(pool.additional.tags[0] as StrategyLiveStatus);
 
   return (
     <Box
