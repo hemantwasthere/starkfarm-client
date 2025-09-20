@@ -50,6 +50,7 @@ import { ManageTab } from './ManageTab';
 import { RiskTab } from './RiskTab';
 import { StrategyInfoComponent } from './StrategyInfo';
 import { TransactionsTab } from './TransactionsTab';
+import { getTokenInfoFromAddr } from '@/utils';
 
 function HoldingsText({
   strategy,
@@ -281,11 +282,14 @@ const Strategy = ({ params }: StrategyParams) => {
 
   // Determine if this is an Ekubo strategy
   const isEkuboStrategy = strategy?.id?.startsWith('ekubo_cl_');
-
   const txHistoryAtom = useMemo(
     () =>
       isEkuboStrategy
-        ? EkuboTxHistoryAtom(strategyAddress, address!)
+        ? EkuboTxHistoryAtom(
+            strategyAddress,
+            address!,
+            strategy?.settings.quoteToken.address.address || '',
+          )
         : TxHistoryAtom(strategyAddress, address!),
     [address, strategyAddress, isEkuboStrategy],
   );
@@ -311,36 +315,46 @@ const Strategy = ({ params }: StrategyParams) => {
   }, [JSON.stringify(txHistoryResult.data)]);
 
   const [profit, setProfit] = useState(0);
-  const computeProfit = useCallback(async () => {
+  const computeProfit = useCallback(() => {
     if (!txHistory.findManyInvestment_flows.length) return 0;
-
-    try {
-      if (strategy) {
-        const netEarnings = await (strategy as any).calculateNetEarnings(
-          txHistory.findManyInvestment_flows,
+    const tokenInfo = getTokenInfoFromAddr(
+      txHistory.findManyInvestment_flows[0].asset,
+    );
+    if (!tokenInfo) return 0;
+    const netDeposits = txHistory.findManyInvestment_flows.reduce(
+      (acc, tx, index) => {
+        const sign = tx.type === 'deposit' ? 1 : -1;
+        console.log(
+          `tx sum`,
+          Number(tx.amount) / 1e18,
+          tx.type,
+          sign,
+          acc,
+          index,
+          (sign * Number(tx.amount)) / 1e18,
+          acc + (sign * Number(tx.amount)) / 1e18,
         );
-        setProfit(netEarnings);
-      }
-    } catch (error) {
-      console.error('Error calculating net earnings:', error);
-      // Fallback to simple calculation
-      const simpleNetEarnings = txHistory.findManyInvestment_flows.reduce(
-        (acc, tx) => {
-          const amount = Number(
-            new MyNumber(tx.amount, 18).toEtherToFixedDecimals(6),
-          );
-          if (tx.type === 'deposit') {
-            return acc - amount;
-          } else if (tx.type === 'withdraw') {
-            return acc + amount;
-          }
-          return acc;
-        },
-        0,
-      );
-      setProfit(simpleNetEarnings);
-    }
-  }, [txHistory, strategy]);
+        return (
+          acc +
+          sign *
+            Number(
+              new MyNumber(
+                tx.amount,
+                tokenInfo.decimals,
+              ).toEtherToFixedDecimals(6),
+            )
+        );
+      },
+      0,
+    );
+    const currentValue = Number(
+      balData.data?.amount.toEtherToFixedDecimals(6) || '0',
+    );
+    if (currentValue === 0) return 0;
+
+    if (netDeposits === 0) return 0;
+    setProfit(currentValue - netDeposits);
+  }, [txHistory, balData]);
 
   useEffect(() => {
     if (profit == 0) {

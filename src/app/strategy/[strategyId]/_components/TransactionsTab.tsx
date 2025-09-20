@@ -11,6 +11,9 @@ import {
   Td,
   TableContainer,
   Text,
+  VStack,
+  Alert,
+  AlertIcon,
 } from '@chakra-ui/react';
 import { ArrowDownIcon, ArrowUpIcon, ExternalLinkIcon } from '@chakra-ui/icons';
 import { useAccount } from '@starknet-react/core';
@@ -172,14 +175,14 @@ function DesktopTransactionHistory(props: { transactions: ITransaction[] }) {
                       {index + 1}.
                     </Td>
                     <Td color={'text_secondary'} fontSize={'14px'}>
-                      <Flex alignItems="center" gap={2} flexWrap="wrap">
-                        <Flex alignItems="center" gap={1}>
+                      <VStack width={'100%'} alignItems={'start'}>
+                        <Flex gap={1}>
                           <Avatar
                             size="xs"
                             src={token?.logo}
                             name={token?.name}
                           />
-                          <Text>
+                          <Text mt={'2px'}>
                             {Math.abs(
                               Number(
                                 new MyNumber(
@@ -192,30 +195,41 @@ function DesktopTransactionHistory(props: { transactions: ITransaction[] }) {
                           </Text>
                         </Flex>
                         {/* Show additional Ekubo info if available */}
-                        {tx.amount1 && tx.token1 && (
-                          <Flex alignItems="center" gap={1}>
-                            <Avatar
-                              size="xs"
-                              src={getTokenInfoFromAddr(tx.token1)?.logo}
-                              name={getTokenInfoFromAddr(tx.token1)?.name}
-                            />
-                            <Text fontSize={'12px'} color={'text_secondary'}>
-                              {Math.abs(
-                                Number(
-                                  new MyNumber(
-                                    tx.amount1,
-                                    getTokenInfoFromAddr(tx.token1).decimals,
-                                  ).toEtherToFixedDecimals(
-                                    getTokenInfoFromAddr(tx.token1)
-                                      .displayDecimals,
+                        {tx.amount1 && tx.token1 && tx.amount0 && tx.token0 && (
+                          <Flex gap={1} opacity={0.7} fontSize={'12px'}>
+                            <Box>Breakdown:</Box>
+                            <Flex alignItems="center" gap={1}>
+                              <Text fontSize={'12px'} color={'text_secondary'}>
+                                {Math.abs(
+                                  Number(
+                                    new MyNumber(
+                                      tx.amount0,
+                                      getTokenInfoFromAddr(tx.token0).decimals,
+                                    ).toEtherToFixedDecimals(
+                                      getTokenInfoFromAddr(tx.token0)
+                                        .displayDecimals,
+                                    ),
                                   ),
-                                ),
-                              )}{' '}
-                              {getTokenInfoFromAddr(tx.token1).name}
-                            </Text>
+                                )}{' '}
+                                {getTokenInfoFromAddr(tx.token0).name}
+                                {' | '}
+                                {Math.abs(
+                                  Number(
+                                    new MyNumber(
+                                      tx.amount1,
+                                      getTokenInfoFromAddr(tx.token1).decimals,
+                                    ).toEtherToFixedDecimals(
+                                      getTokenInfoFromAddr(tx.token1)
+                                        .displayDecimals,
+                                    ),
+                                  ),
+                                )}{' '}
+                                {getTokenInfoFromAddr(tx.token1).name}
+                              </Text>
+                            </Flex>
                           </Flex>
                         )}
-                      </Flex>
+                      </VStack>
                     </Td>
                     <Td color={'text_secondary'} fontSize={'14px'}>
                       {getTransactionIcon(tx.type)}
@@ -329,29 +343,39 @@ function MobileTransactionHistory(props: { transactions: ITransaction[] }) {
                   {token?.name}
                 </Text>
               </Flex>
-              {tx.amount1 && tx.token1 && (
+            </Flex>
+            {tx.amount1 && tx.token1 && tx.amount0 && tx.token0 && (
+              <Flex gap={1} opacity={0.7} fontSize={'12px'}>
+                <Box color={'white'}>Breakdown:</Box>
                 <Flex alignItems="center" gap={1}>
-                  <Avatar
-                    size="xs"
-                    src={getTokenInfoFromAddr(tx.token1)?.logo}
-                    name={getTokenInfoFromAddr(tx.token1)?.name}
-                  />
-                  <Text fontSize={'13px'} color={'text_secondary'}>
+                  <Text fontSize={'12px'} color={'text_secondary'}>
+                    {Math.abs(
+                      Number(
+                        new MyNumber(
+                          tx.amount0,
+                          getTokenInfoFromAddr(tx.token0).decimals,
+                        ).toEtherToFixedDecimals(
+                          getTokenInfoFromAddr(tx.token0).displayDecimals,
+                        ),
+                      ),
+                    )}{' '}
+                    {getTokenInfoFromAddr(tx.token0).name}
+                    {' | '}
                     {Math.abs(
                       Number(
                         new MyNumber(
                           tx.amount1,
-                          getTokenInfoFromAddr(tx.token1)?.decimals,
+                          getTokenInfoFromAddr(tx.token1).decimals,
                         ).toEtherToFixedDecimals(
-                          getTokenInfoFromAddr(tx.token1)?.displayDecimals,
+                          getTokenInfoFromAddr(tx.token1).displayDecimals,
                         ),
                       ),
-                    ).toLocaleString()}{' '}
-                    {getTokenInfoFromAddr(tx.token1)?.name || 'Token'}
+                    )}{' '}
+                    {getTokenInfoFromAddr(tx.token1).name}
                   </Text>
                 </Flex>
-              )}
-            </Flex>
+              </Flex>
+            )}
             <Text color="white" fontSize="13px">
               Tx Hash:{' '}
               <Link
@@ -388,6 +412,23 @@ export function TransactionsTab(props: TransactionsTabProps) {
             found, try again later.
           </Text>
         )}
+        {!strategy.settings.isTransactionHistDisabled &&
+          strategy.settings.quoteToken?.symbol && (
+            <Text fontSize="14px" color="border_light" mb={2}>
+              <Alert
+                fontSize="14px"
+                status="info"
+                color="border_light"
+                bg="highlight"
+                mb={2}
+                borderRadius="lg"
+              >
+                <AlertIcon />
+                Transactions are denominated in{' '}
+                {strategy.settings.quoteToken.symbol} for this strategy.
+              </Alert>
+            </Text>
+          )}
       </Box>
       {address ? (
         strategy.settings.isTransactionHistDisabled ? (

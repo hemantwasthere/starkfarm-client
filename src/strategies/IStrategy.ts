@@ -103,6 +103,13 @@ export interface IStrategyActionHook {
   onClickButton?: (amount: MyNumber) => Promise<ReactNode | string[]>;
 }
 
+export enum StrategyTag {
+  EKUBO = 'Ekubo',
+  EVERGREEN = 'Evergreen',
+  Vesu = 'Vesu',
+  Staking = 'Staking',
+}
+
 export interface IStrategySettings {
   maxTVL: number;
   alerts?: {
@@ -120,6 +127,7 @@ export interface IStrategySettings {
   quoteToken: TokenInfoV2; // used to show the holdings in this token,
   isTransactionHistDisabled?: boolean;
   showWithdrawalWarningModal?: boolean; // Show withdrawal warning modal for this strategy
+  tags?: StrategyTag[];
 }
 
 export interface AmountInfo {
@@ -307,13 +315,7 @@ export class IStrategyProps<T> {
     // adjust decimals
     const decimals = tokenInfo.decimals;
     const quoteDecimals = quoteToken.decimals;
-    if (decimals > quoteDecimals) {
-      return amt.dividedBy(10 ** (decimals - quoteDecimals));
-    }
-    if (decimals < quoteDecimals) {
-      return amt.multipliedBy(10 ** (quoteDecimals - decimals));
-    }
-    return amt;
+    return new Web3Number(amt.toString(), quoteToken.decimals);
   }
 }
 

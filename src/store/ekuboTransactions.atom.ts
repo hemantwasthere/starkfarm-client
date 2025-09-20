@@ -1,11 +1,12 @@
 import { atomWithQuery } from 'jotai-tanstack-query';
 import { gql } from '@apollo/client';
-import ekuboApolloClient from '@/utils/ekuboApolloClient';
-import { standariseAddress } from '@/utils';
+import { getTokenInfoFromAddr, standariseAddress } from '@/utils';
+import apolloClient from '@/utils/apolloClient';
+import { Web3Number } from '@strkfarm/sdk';
 
 export interface EkuboVaultFlow {
   type: string;
-  txHash: string;
+  tx_hash: string;
   block_number: number;
   txIndex: number;
   eventIndex: number;
@@ -15,6 +16,7 @@ export interface EkuboVaultFlow {
   amount1: string;
   liquidity_delta: string;
   timestamp: number;
+  quote_amount: string;
 }
 
 export interface EkuboTxHistory {
@@ -25,7 +27,7 @@ export interface EkuboTransaction {
   amount: string;
   timestamp: number;
   type: string;
-  txHash: string;
+  tx_hash: string;
   asset: string;
   block_number: number;
   txIndex: number;
@@ -42,12 +44,13 @@ export interface EkuboTransaction {
 async function getEkuboTxHistory(
   vaultContract: string,
   userAddress: string,
+  quoteToken: string,
 ): Promise<{ findManyInvestment_flows: EkuboTransaction[] }> {
   try {
     const vaultContractFormatted = standariseAddress(vaultContract);
     const userAddressFormatted = standariseAddress(userAddress);
 
-    const { data } = await ekuboApolloClient.query({
+    const { data } = await apolloClient.query({
       query: gql`
         query ContractFeeEarnings(
           $timeframe: String!
@@ -69,16 +72,17 @@ async function getEkuboTxHistory(
             vault_contract: $vaultContract
           ) {
             type
-            txHash
+            tx_hash
             block_number
-            txIndex
-            eventIndex
+            tx_index
+            event_index
             token0
             token1
             amount0
             amount1
             liquidity_delta
             timestamp
+            quote_amount
           }
         }
       `,
@@ -97,14 +101,18 @@ async function getEkuboTxHistory(
         // Determine the primary token and amount based on the flow type
         // For deposits, we show the total value in STRK terms
         // For withdrawals, we show the total value in STRK terms
-        const primaryToken = flow.token0; // Assuming token0 is the primary token (STRK)
-        const primaryAmount = flow.amount0;
+        const primaryToken = quoteToken || flow.token0; // Assuming token0 is the primary token (STRK)
+        const tokenInfo = getTokenInfoFromAddr(primaryToken);
+        const primaryAmount = new Web3Number(
+          Math.abs(Number(flow.quote_amount)).toFixed(12),
+          tokenInfo.decimals,
+        ).toWei();
 
         return {
           amount: primaryAmount, // Use primary token amount
           timestamp: flow.timestamp,
           type: flow.type,
-          txHash: flow.txHash,
+          tx_hash: flow.tx_hash,
           asset: primaryToken,
           block_number: flow.block_number,
           txIndex: flow.txIndex,
@@ -132,13 +140,18 @@ async function getEkuboTxHistory(
 export const EkuboTxHistoryAtom = (
   vaultContract: string,
   userAddress: string,
+  quoteToken: string,
 ) =>
   atomWithQuery((get) => ({
     queryKey: ['ekubo_tx_history', vaultContract, userAddress],
     queryFn: async (): Promise<{
       findManyInvestment_flows: EkuboTransaction[];
     }> => {
-      const res = await getEkuboTxHistory(vaultContract, userAddress);
+      const res = await getEkuboTxHistory(
+        vaultContract,
+        userAddress,
+        quoteToken,
+      );
       console.log('EkuboTxHistoryAtom res', res, {
         vaultContract,
         userAddress,

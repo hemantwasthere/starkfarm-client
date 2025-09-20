@@ -3,6 +3,7 @@ import {
   IStrategy,
   IStrategyProps,
   StrategyLiveStatus,
+  StrategyTag,
 } from '@/strategies/IStrategy';
 import CONSTANTS from '@/constants';
 import { convertToV2TokenInfo, getTokenInfoFromName } from '@/utils';
@@ -269,7 +270,9 @@ export function getStrategies() {
       v.name,
       v.description as ReactNode,
       v,
-      StrategyLiveStatus.ACTIVE,
+      v.curator?.name.toLowerCase().includes('re7')
+        ? StrategyLiveStatus.HOT
+        : StrategyLiveStatus.ACTIVE,
       {
         maxTVL: 0,
         isAudited: v.auditUrl ? true : false,
@@ -284,9 +287,9 @@ export function getStrategies() {
         ],
         isInstantWithdrawal: true,
         quoteToken: convertToV2TokenInfo(
-          getTokenInfoFromName(v.depositTokens[1]?.symbol || ''),
+          getTokenInfoFromName(v.additionalInfo.quoteAsset.symbol),
         ),
-        isTransactionHistDisabled: false,
+        tags: [StrategyTag.EKUBO],
       },
     );
   });
@@ -310,6 +313,7 @@ export function getStrategies() {
             type: 'info',
           },
         ],
+        tags: [StrategyTag.EVERGREEN],
         hideHarvestInfo: true,
         isInstantWithdrawal: false,
         quoteToken: convertToV2TokenInfo(uni.depositTokens[0]),

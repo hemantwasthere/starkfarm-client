@@ -14,6 +14,7 @@ import {
 } from './pools';
 import { getLiveStatusEnum } from '@/utils/strategyStatus';
 import { IInvestmentFlow } from '@strkfarm/sdk';
+import { getStrategies } from './strategies.atoms';
 
 export interface TrovesStrategyAPIResult {
   name: string;
@@ -67,9 +68,13 @@ export class Troves extends IDapp<TrovesStrategyAPIResult> {
   _computePoolsInfo(data: any) {
     const rawPools: TrovesStrategyAPIResult[] = data.strategies;
     const pools: PoolInfo[] = [];
+    const allStrategies = getStrategies();
+
     return rawPools.map((rawPool) => {
       const poolName = rawPool.name;
       const riskFactor = rawPool.riskFactor;
+
+      const strategy = allStrategies.find((strat) => strat.id == rawPool.id);
 
       const isStable = poolName.includes('USDC') || poolName.includes('USDT');
       const categories: Category[] = getCategoriesFromName(poolName, isStable);
@@ -112,7 +117,10 @@ export class Troves extends IDapp<TrovesStrategyAPIResult> {
         },
         additional: {
           riskFactor,
-          tags: [getLiveStatusEnum(rawPool.status.number)],
+          tags: [
+            getLiveStatusEnum(rawPool.status.number),
+            ...(strategy?.settings.tags || []),
+          ],
           isAudited: rawPool.isAudited,
           auditUrl: rawPool.auditUrl,
           is_promoted: poolName.includes('Stake'),

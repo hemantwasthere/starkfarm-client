@@ -1,5 +1,5 @@
 import CONSTANTS from '@/constants';
-import { StrategyLiveStatus } from '@/strategies/IStrategy';
+import { StrategyLiveStatus, StrategyTag } from '@/strategies/IStrategy';
 import { customAtomWithFetch } from '@/utils/customAtomWithFetch';
 import { CustomAtomWithQueryResult } from '@/utils/customAtomWithQuery';
 import fetchWithRetry from '@/utils/fetchWithRetry';
@@ -58,7 +58,7 @@ export interface PoolInfo extends PoolMetadata {
   additional: {
     leverage?: number;
     riskFactor: number;
-    tags: StrategyLiveStatus[];
+    tags: (StrategyLiveStatus | StrategyTag)[];
     isAudited: boolean;
     auditUrl?: string;
     is_promoted?: boolean;

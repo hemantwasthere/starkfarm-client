@@ -66,6 +66,7 @@ async function getTxHistory(
             request_id
             tx_hash
             asset
+            quote_amount
           }
         }
       `,

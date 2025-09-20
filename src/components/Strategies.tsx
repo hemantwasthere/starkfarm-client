@@ -27,13 +27,30 @@ import {
 import { YieldStrategyCard } from './YieldCard';
 import { addressAtom } from '@/store/claims.atoms';
 import { QuestionIcon } from '@chakra-ui/icons';
+import { StrategyTag } from '@/strategies/IStrategy';
+import { getStrategies } from '@/store/strategies.atoms';
 
-export default function Strategies() {
+export default function Strategies({
+  tags,
+  question,
+  answer,
+}: {
+  tags?: StrategyTag[];
+  question: string;
+  answer: string;
+}) {
   const strkFarmPoolsRes = useAtomValue(TrovesBaseAPYsAtom);
+  const allStrategies = getStrategies();
   const strkFarmPools = useMemo(() => {
     if (!strkFarmPoolsRes || !strkFarmPoolsRes.data)
       return [] as TrovesStrategyAPIResult[];
-    return strkFarmPoolsRes.data.strategies;
+    return strkFarmPoolsRes.data.strategies.filter((strategy) => {
+      if (!tags) return true;
+      const strategyObj = allStrategies.find(
+        (strat) => strat.id == strategy.id,
+      );
+      return tags.some((tag) => strategyObj?.settings.tags?.includes(tag));
+    });
   }, [strkFarmPoolsRes]);
   const address = useAtomValue(addressAtom);
 
@@ -68,16 +85,13 @@ export default function Strategies() {
         <AccordionItem border={'none'}>
           <AccordionButton>
             <Text color="text_secondary" fontSize={'15px'} fontWeight={'600'}>
-              <QuestionIcon marginTop={'-2px'} /> What are strategies?
+              <QuestionIcon marginTop={'-2px'} /> {question}
             </Text>
             {/* <AccordionIcon color={'text_primary'} /> */}
           </AccordionButton>
           <AccordionPanel>
             <Text color="text_secondary" fontSize={'15px'} fontWeight={'400'}>
-              Strategies are structured investment plans that combine multiple
-              liquidity pools or protocols to optimize returns. They automate
-              the process of maximizing yield by intelligently allocating assets
-              across opportunities.
+              {answer}
             </Text>
           </AccordionPanel>
         </AccordionItem>
