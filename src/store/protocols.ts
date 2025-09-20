@@ -168,9 +168,9 @@ export function getPoolInfoFromStrategy(
       logos: [...strat.logos],
     },
     protocol: {
-      name: 'Troves',
+      name: strat.curator ? strat.curator.name : 'Troves',
       link: `/strategy/${strat.id}`,
-      logo: trovesLogo.src,
+      logo: strat.curator ? strat.curator.logo : trovesLogo.src,
     },
     tvl: strat.tvlUsd,
     apr: strat.apy,
