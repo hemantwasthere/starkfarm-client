@@ -2057,7 +2057,7 @@
   dependencies:
     "@noble/hashes" "1.8.0"
 
-"@noble/curves@^1.3.0", "@noble/curves@^1.9.1", "@noble/curves@~1.9.0":
+"@noble/curves@^1.3.0", "@noble/curves@^1.9.1", "@noble/curves@^1.9.7", "@noble/curves@~1.9.0":
   version "1.9.7"
   resolved "https://registry.yarnpkg.com/@noble/curves/-/curves-1.9.7.tgz#79d04b4758a43e4bca2cbdc62e7771352fa6b951"
   integrity sha512-gbKGcRUYIjA3/zCCNaWDciTMFI0dCkvou3TL8Zmy5Nc7sJ47a0jtOeZoTaMxkuqRo9cRhjOdZJXegxYE5FN/xw==
@@ -2688,14 +2688,14 @@
     viem "^2.21.1"
     zod "^3.22.4"
 
-"@strkfarm/sdk@^1.0.64":
-  version "1.0.64"
-  resolved "https://registry.yarnpkg.com/@strkfarm/sdk/-/sdk-1.0.64.tgz#c19c0ea59d69b619e4c4f19b224f529ce0442ebb"
-  integrity sha512-tXlBu+6GJY14XH9XmZJDHY1QH0+iOfL1mY/1FmpFIhnaakUYq0EH8RdnE/F9SE/uUdbFFxoduCtENpBHvAm14Q==
+"@strkfarm/sdk@1.1.5":
+  version "1.1.5"
+  resolved "https://registry.yarnpkg.com/@strkfarm/sdk/-/sdk-1.1.5.tgz#830a7bcc0c417132af1ad985f6b7ee8531e7e58f"
+  integrity sha512-P72sOT68KDA4wmgMNVdGvKoSTLnxocup62xAp7nJLHsmvqU/RZfOVA9KcgrGEvtYKqkKf6uUzLqad76tAuzBbQ==
   dependencies:
     "@avnu/avnu-sdk" "3.0.2"
     "@ericnordelo/strk-merkle-tree" "^1.0.0"
-    "@noble/curves" "^2.0.0"
+    "@noble/curves" "^1.9.7"
     "@scure/starknet" "^2.0.0"
     bignumber.js "4.0.4"
     browser-assert "^1.2.1"
