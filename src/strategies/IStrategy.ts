@@ -107,7 +107,7 @@ export enum StrategyTag {
   EKUBO = 'Ekubo',
   EVERGREEN = 'Evergreen',
   Vesu = 'Vesu',
-  Staking = 'Staking',
+  Endur = 'Endur',
 }
 
 export interface IStrategySettings {

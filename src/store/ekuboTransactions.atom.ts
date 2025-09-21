@@ -49,7 +49,6 @@ async function getEkuboTxHistory(
   try {
     const vaultContractFormatted = standariseAddress(vaultContract);
     const userAddressFormatted = standariseAddress(userAddress);
-
     const { data } = await apolloClient.query({
       query: gql`
         query ContractFeeEarnings(

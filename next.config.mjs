@@ -49,10 +49,14 @@ const nextConfig = {
         source: '/imagedelivery/:path*',
         destination: 'https://imagedelivery.net/0xPAQaDtnQhBs8IzYRIlNg/:path*',
       },
+      // {
+      //   source: '/vesu/:path*',
+      //   destination: 'https://cache-server-t2me.onrender.com/vesu/:path*',
+      // },
       {
-        source: '/vesu/:path*',
-        destination: 'https://api.vesu.xyz/:path*',
-      },
+        source: '/api/price/:path*',
+        destination: 'https://cache-server-t2me.onrender.com/api/price/:path*',
+      }
     ];
   },
   async redirects() {

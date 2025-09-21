@@ -74,6 +74,14 @@ const TABs: {
     answer:
       'Ekubo is a highly efficient concentrated liquidity (CL) AMM on Starknet. Managing Ekubo pools is a advanced task that requires a lot of knowledge about the protocol and the market. These strategies curated by Re7 Labs and Troves team help you LP in Ekubo without having to manage the pool yourself.',
   },
+  {
+    name: 'Endur Strategies',
+    tags: [StrategyTag.Endur],
+    id: 'endur',
+    question: 'What are Endur (LST) strategies?',
+    answer:
+      'Endur is a liquid staking protocol on Starknet supporting multiple LSTs on STRK and BTC. This allows to build multiple strategies around LSTs like managed LPing on Ekubo, leveraged liquid staking, and more.',
+  },
 ];
 
 export default function Home() {

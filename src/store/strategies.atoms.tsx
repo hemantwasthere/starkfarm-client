@@ -270,9 +270,7 @@ export function getStrategies() {
       v.name,
       v.description as ReactNode,
       v,
-      v.curator?.name.toLowerCase().includes('re7')
-        ? StrategyLiveStatus.HOT
-        : StrategyLiveStatus.ACTIVE,
+      StrategyLiveStatus.ACTIVE,
       {
         maxTVL: 0,
         isAudited: v.auditUrl ? true : false,
@@ -289,9 +287,13 @@ export function getStrategies() {
         quoteToken: convertToV2TokenInfo(
           getTokenInfoFromName(v.additionalInfo.quoteAsset.symbol),
         ),
-        tags: [StrategyTag.EKUBO],
+        tags: v.additionalInfo.lstContract
+          ? [StrategyTag.EKUBO, StrategyTag.Endur]
+          : [StrategyTag.EKUBO],
       },
     );
+  }).filter((s) => {
+    return s.name != 'Ekubo tBTC/USDC'; // disable for now
   });
 
   const evergreenStrategies = UniversalStrategies.map((uni) => {
@@ -301,7 +303,7 @@ export function getStrategies() {
       uni.name,
       uni.description as ReactNode,
       uni,
-      StrategyLiveStatus.HOT,
+      StrategyLiveStatus.ACTIVE,
       {
         maxTVL: 0,
         isAudited: false,

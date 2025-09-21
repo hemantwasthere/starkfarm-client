@@ -2101,7 +2101,7 @@
   resolved "https://registry.yarnpkg.com/@noble/hashes/-/hashes-1.8.0.tgz#cee43d801fcef9644b11b8194857695acd5f815a"
   integrity sha512-jCs9ldd7NwzpgXDIf6P3+NrHh9/sD6CQdxHyjQI+h/6rDNo88ypBxxz45UDuZHz9r3tNz7N/VInSVoVdtXEI4A==
 
-"@noble/hashes@2.0.0", "@noble/hashes@~2.0.0":
+"@noble/hashes@2.0.0", "@noble/hashes@^2.0.0", "@noble/hashes@~2.0.0":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@noble/hashes/-/hashes-2.0.0.tgz#5c39388259a0868cadb17d688cd8cf07eae344a4"
   integrity sha512-h8VUBlE8R42+XIDO229cgisD287im3kdY6nbNZJFjc6ZvKIXPYXe6Vc/t+kyjFdMFyt5JpapzTsEg8n63w5/lw==
@@ -2688,14 +2688,15 @@
     viem "^2.21.1"
     zod "^3.22.4"
 
-"@strkfarm/sdk@1.1.5":
-  version "1.1.5"
-  resolved "https://registry.yarnpkg.com/@strkfarm/sdk/-/sdk-1.1.5.tgz#830a7bcc0c417132af1ad985f6b7ee8531e7e58f"
-  integrity sha512-P72sOT68KDA4wmgMNVdGvKoSTLnxocup62xAp7nJLHsmvqU/RZfOVA9KcgrGEvtYKqkKf6uUzLqad76tAuzBbQ==
+"@strkfarm/sdk@^1.1.6":
+  version "1.1.6"
+  resolved "https://registry.yarnpkg.com/@strkfarm/sdk/-/sdk-1.1.6.tgz#d41d49d565db73bf87e9b4fc41a4f3f04613e505"
+  integrity sha512-bSjr6wPw2bCJujoqLDrjnufcKT03oCHT6ZnfunL176r7vKIgZvpOIHs2WGCqR4aGxEQ0vRtTCNUMYozUNmhQlA==
   dependencies:
     "@avnu/avnu-sdk" "3.0.2"
     "@ericnordelo/strk-merkle-tree" "^1.0.0"
     "@noble/curves" "^1.9.7"
+    "@noble/hashes" "^2.0.0"
     "@scure/starknet" "^2.0.0"
     bignumber.js "4.0.4"
     browser-assert "^1.2.1"
