@@ -172,9 +172,9 @@ export async function GET(req: Request) {
     // sort based on risk factor, live status and apy
     // const aRisk = a.riskFactor;
     // const bRisk = b.riskFactor;
-    // const aLive = a.status.number;
-    // const bLive = b.status.number;
-    // if (aLive !== bLive) return aLive - bLive;
+    const aLive = a.status.number < 5 ? 0 : a.status.number;
+    const bLive = b.status.number < 5 ? 0 : b.status.number;
+    if (aLive !== bLive) return aLive - bLive;
     // if (aRisk !== bRisk) return aRisk - bRisk;
     return b.apy - a.apy;
   });
