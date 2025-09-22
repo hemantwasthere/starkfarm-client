@@ -1,9 +1,9 @@
 'use client';
 
-import { useDotButton } from '@/components/EmblaCarouselDotButton';
 import Strategies from '@/components/Strategies';
 import TVL from '@/components/TVL';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { StrategyTag } from '@/strategies/IStrategy';
 import { useWindowSize } from '@/utils/useWindowSize';
 
 import {
@@ -24,7 +24,7 @@ import Autoplay from 'embla-carousel-autoplay';
 import useEmblaCarousel from 'embla-carousel-react';
 import mixpanel from 'mixpanel-browser';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 const banner_images = [
   // {
@@ -44,6 +44,46 @@ const banner_images = [
   },
 ];
 
+const TABs: {
+  name: string;
+  tags?: StrategyTag[];
+  id: string;
+  question: string;
+  answer: string;
+}[] = [
+  {
+    name: 'All Strategies✨',
+    id: 'all',
+    question: 'What are strategies?',
+    answer:
+      'Strategies are structured investment plans that combine multiple liquidity pools or protocols to optimize returns. They automate the process of maximizing yield by intelligently allocating assets across opportunities.',
+  },
+  {
+    name: 'Evergreen Strategies',
+    tags: [StrategyTag.EVERGREEN],
+    id: 'evergreen',
+    question: 'What are Evergreen strategies?',
+    answer:
+      'Evergreen strategies are strategies that are always active and automatically switch between different strategies to maximize returns. Some strategies die over time, but evergreen strategies are always remain active by switching to different strategies.',
+  },
+  {
+    name: 'Managed Ekubo Strategies',
+    tags: [StrategyTag.EKUBO],
+    id: 'ekubo',
+    question: 'What are managed Ekubo strategies?',
+    answer:
+      'Ekubo is a highly efficient concentrated liquidity (CL) AMM on Starknet. Managing Ekubo pools is a advanced task that requires a lot of knowledge about the protocol and the market. These strategies curated by Re7 Labs and Troves team help you LP in Ekubo without having to manage the pool yourself.',
+  },
+  {
+    name: 'Endur Strategies',
+    tags: [StrategyTag.Endur],
+    id: 'endur',
+    question: 'What are Endur (LST) strategies?',
+    answer:
+      'Endur is a liquid staking protocol on Starknet supporting multiple LSTs on STRK and BTC. This allows to build multiple strategies around LSTs like managed LPing on Ekubo, leveraged liquid staking, and more.',
+  },
+];
+
 export default function Home() {
   const [tabIndex, setTabIndex] = useState(0);
 
@@ -51,7 +91,6 @@ export default function Home() {
   const searchParams = useSearchParams();
   const size = useWindowSize();
   const router = useRouter();
-
   const [emblaRef, emblaApi] = useEmblaCarousel(
     {
       loop: true,
@@ -59,37 +98,40 @@ export default function Home() {
     [Autoplay({ playOnInit: true, delay: 8000 })],
   );
 
-  const { selectedIndex, scrollSnaps, onDotButtonClick } =
-    useDotButton(emblaApi);
-
   function setRoute(value: string) {
     router.push(`?tab=${value}`);
   }
 
   function handleTabsChange(index: number) {
-    // if (index === 1) {
-    //   setRoute('pools');
-    // } else {
-    setRoute('strategies');
-    // }
+    setRoute(TABs[index].id);
   }
 
   useEffect(() => {
     mixpanel.track('Page open');
   }, []);
 
+  const isMobile = useIsMobile();
+
   useEffect(() => {
     (async () => {
       const tab = searchParams.get('tab');
-      if (tab === 'pools') {
-        setTabIndex(0); // actually 1, but put 0 since yields are commented
-      } else {
+      const tabIndex = TABs.findIndex((_tab) => _tab.id === tab);
+      if (isMobile) {
         setTabIndex(0);
+      } else if (tabIndex !== -1) {
+        setTabIndex(tabIndex);
       }
     })();
-  }, [searchParams]);
+  }, [searchParams, isMobile]);
 
-  const isMobile = useIsMobile();
+  const ScreenBasedTabs = useMemo(() => {
+    return TABs.filter((tab) => {
+      if (isMobile) {
+        return tab.id === 'all';
+      }
+      return true;
+    });
+  }, [isMobile]);
 
   return (
     <Container
@@ -168,24 +210,20 @@ export default function Home() {
         padding={0}
       >
         <TabList borderBottom={'2px solid var(--chakra-colors-mycard)'}>
-          <Tab
-            color={'text_secondary'}
-            _selected={{ color: 'purple', fontWeight: 'bold' }}
-            onClick={() => {
-              mixpanel.track('Strategies opened');
-            }}
-          >
-            Yield Strategies✨
-          </Tab>
-          {/* <Tab
-            color={'text_secondary'}
-            _selected={{ color: 'purple', fontWeight: 'bold' }}
-            onClick={() => {
-              mixpanel.track('All pools clicked');
-            }}
-          >
-            Find yields
-          </Tab> */}
+          {ScreenBasedTabs.map((tab, index) => (
+            <Tab
+              color={'text_secondary'}
+              _selected={{ color: 'purple', fontWeight: 'bold' }}
+              onClick={() => {
+                mixpanel.track('Strategies opened', {
+                  tab: tab.id,
+                });
+              }}
+              key={index}
+            >
+              {tab.name}
+            </Tab>
+          ))}
         </TabList>
         <TabIndicator
           mt="-1.5px"
@@ -196,28 +234,24 @@ export default function Home() {
           boxShadow={'0px 0px 8px 0px var(--chakra-colors-purple)'}
         />
         <TabPanels>
-          <TabPanel
-            bg="color_3"
-            float={'left'}
-            width={'100%'}
-            // borderWidth={'1px'}
-            borderColor={'color_3'}
-            borderRadius={'8px'}
-            padding={'1rem 0'}
-          >
-            <Strategies />
-          </TabPanel>
-          {/* <TabPanel
-            bg="color_3"
-            width={'100%'}
-            float={'left'}
-            // borderWidth={'1px'}
-            borderColor={'color_3'}
-            borderRadius={'8px'}
-            padding={'1rem 0'}
-          >
-            <Pools />
-          </TabPanel> */}
+          {ScreenBasedTabs.map((tab, index) => (
+            <TabPanel
+              key={index}
+              bg="color_3"
+              float={'left'}
+              width={'100%'}
+              // borderWidth={'1px'}
+              borderColor={'color_3'}
+              borderRadius={'8px'}
+              padding={'1rem 0'}
+            >
+              <Strategies
+                tags={tab.tags}
+                question={tab.question}
+                answer={tab.answer}
+              />
+            </TabPanel>
+          ))}
         </TabPanels>
       </Tabs>
       {/* <hr style={{width: '100%', borderColor: '#5f5f5f', float: 'left', margin: '20px 0'}}/> */}

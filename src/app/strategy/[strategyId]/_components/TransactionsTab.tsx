@@ -1,4 +1,5 @@
 import {
+  Avatar,
   Box,
   Flex,
   Link,
@@ -10,6 +11,9 @@ import {
   Td,
   TableContainer,
   Text,
+  VStack,
+  Alert,
+  AlertIcon,
 } from '@chakra-ui/react';
 import { ArrowDownIcon, ArrowUpIcon, ExternalLinkIcon } from '@chakra-ui/icons';
 import { useAccount } from '@starknet-react/core';
@@ -28,9 +32,15 @@ interface ITransaction {
   amount: string;
   timestamp: number;
   type: string;
-  txHash: string;
+  tx_hash: string;
   asset: string;
   __typename: 'Investment_flows';
+  // Additional fields for Ekubo transactions
+  token0?: string;
+  token1?: string;
+  amount0?: string;
+  amount1?: string;
+  liquidity_delta?: string;
 }
 interface TransactionsTabProps {
   strategy: StrategyInfo<any>;
@@ -165,11 +175,61 @@ function DesktopTransactionHistory(props: { transactions: ITransaction[] }) {
                       {index + 1}.
                     </Td>
                     <Td color={'text_secondary'} fontSize={'14px'}>
-                      {new MyNumber(
-                        tx.amount,
-                        decimals!,
-                      ).toEtherToFixedDecimals(token.displayDecimals)}{' '}
-                      {token?.name}
+                      <VStack width={'100%'} alignItems={'start'}>
+                        <Flex gap={1}>
+                          <Avatar
+                            size="xs"
+                            src={token?.logo}
+                            name={token?.name}
+                          />
+                          <Text mt={'2px'}>
+                            {Math.abs(
+                              Number(
+                                new MyNumber(
+                                  tx.amount,
+                                  decimals!,
+                                ).toEtherToFixedDecimals(token.displayDecimals),
+                              ),
+                            )}{' '}
+                            {token?.name}
+                          </Text>
+                        </Flex>
+                        {/* Show additional Ekubo info if available */}
+                        {tx.amount1 && tx.token1 && tx.amount0 && tx.token0 && (
+                          <Flex gap={1} opacity={0.7} fontSize={'12px'}>
+                            <Box>Breakdown:</Box>
+                            <Flex alignItems="center" gap={1}>
+                              <Text fontSize={'12px'} color={'text_secondary'}>
+                                {Math.abs(
+                                  Number(
+                                    new MyNumber(
+                                      tx.amount0,
+                                      getTokenInfoFromAddr(tx.token0).decimals,
+                                    ).toEtherToFixedDecimals(
+                                      getTokenInfoFromAddr(tx.token0)
+                                        .displayDecimals,
+                                    ),
+                                  ),
+                                )}{' '}
+                                {getTokenInfoFromAddr(tx.token0).name}
+                                {' | '}
+                                {Math.abs(
+                                  Number(
+                                    new MyNumber(
+                                      tx.amount1,
+                                      getTokenInfoFromAddr(tx.token1).decimals,
+                                    ).toEtherToFixedDecimals(
+                                      getTokenInfoFromAddr(tx.token1)
+                                        .displayDecimals,
+                                    ),
+                                  ),
+                                )}{' '}
+                                {getTokenInfoFromAddr(tx.token1).name}
+                              </Text>
+                            </Flex>
+                          </Flex>
+                        )}
+                      </VStack>
                     </Td>
                     <Td color={'text_secondary'} fontSize={'14px'}>
                       {getTransactionIcon(tx.type)}
@@ -181,10 +241,10 @@ function DesktopTransactionHistory(props: { transactions: ITransaction[] }) {
                         color={'text_secondary'}
                       >
                         <Link
-                          href={`${CONSTANTS.BLOCK_EXPLORER}/tx/${tx.txHash}`}
+                          href={`${CONSTANTS.BLOCK_EXPLORER}/tx/${tx.tx_hash}`}
                           target="_blank"
                         >
-                          {shortAddress(tx.txHash)} <ExternalLinkIcon />
+                          {shortAddress(tx.tx_hash)} <ExternalLinkIcon />
                         </Link>
                       </Text>
                     </Td>
@@ -266,23 +326,64 @@ function MobileTransactionHistory(props: { transactions: ITransaction[] }) {
                 {displayText}
               </Text>
             </Flex>
-            <Text color="white" fontSize="15px">
-              Amount:{' '}
-              {Number(
-                new MyNumber(tx.amount, decimals!).toEtherToFixedDecimals(
-                  token.displayDecimals,
-                ),
-              ).toLocaleString()}{' '}
-              {token?.name}
-            </Text>
+            <Flex alignItems="center" flexWrap="wrap" gap={1} mb={1}>
+              <Text color="white" fontSize="15px">
+                Amount:
+              </Text>
+              <Flex alignItems="center" gap={1}>
+                <Avatar size="xs" src={token?.logo} name={token?.name} />
+                <Text color="white" fontSize="15px">
+                  {Math.abs(
+                    Number(
+                      new MyNumber(tx.amount, decimals!).toEtherToFixedDecimals(
+                        token.displayDecimals,
+                      ),
+                    ),
+                  ).toLocaleString()}{' '}
+                  {token?.name}
+                </Text>
+              </Flex>
+            </Flex>
+            {tx.amount1 && tx.token1 && tx.amount0 && tx.token0 && (
+              <Flex gap={1} opacity={0.7} fontSize={'12px'}>
+                <Box color={'white'}>Breakdown:</Box>
+                <Flex alignItems="center" gap={1}>
+                  <Text fontSize={'12px'} color={'text_secondary'}>
+                    {Math.abs(
+                      Number(
+                        new MyNumber(
+                          tx.amount0,
+                          getTokenInfoFromAddr(tx.token0).decimals,
+                        ).toEtherToFixedDecimals(
+                          getTokenInfoFromAddr(tx.token0).displayDecimals,
+                        ),
+                      ),
+                    )}{' '}
+                    {getTokenInfoFromAddr(tx.token0).name}
+                    {' | '}
+                    {Math.abs(
+                      Number(
+                        new MyNumber(
+                          tx.amount1,
+                          getTokenInfoFromAddr(tx.token1).decimals,
+                        ).toEtherToFixedDecimals(
+                          getTokenInfoFromAddr(tx.token1).displayDecimals,
+                        ),
+                      ),
+                    )}{' '}
+                    {getTokenInfoFromAddr(tx.token1).name}
+                  </Text>
+                </Flex>
+              </Flex>
+            )}
             <Text color="white" fontSize="13px">
               Tx Hash:{' '}
               <Link
-                href={`${CONSTANTS.BLOCK_EXPLORER}/tx/${tx.txHash}`}
+                href={`${CONSTANTS.BLOCK_EXPLORER}/tx/${tx.tx_hash}`}
                 target="_blank"
                 color="color_7"
               >
-                {shortAddress(tx.txHash)}
+                {shortAddress(tx.tx_hash)}
               </Link>
             </Text>
             <Text color="text_secondary" fontSize="13px">
@@ -311,6 +412,23 @@ export function TransactionsTab(props: TransactionsTabProps) {
             found, try again later.
           </Text>
         )}
+        {!strategy.settings.isTransactionHistDisabled &&
+          strategy.settings.quoteToken?.symbol && (
+            <Text fontSize="14px" color="border_light" mb={2}>
+              <Alert
+                fontSize="14px"
+                status="info"
+                color="border_light"
+                bg="highlight"
+                mb={2}
+                borderRadius="lg"
+              >
+                <AlertIcon />
+                Transactions are denominated in{' '}
+                {strategy.settings.quoteToken.symbol} for this strategy.
+              </Alert>
+            </Text>
+          )}
       </Box>
       {address ? (
         strategy.settings.isTransactionHistDisabled ? (

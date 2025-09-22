@@ -21,6 +21,7 @@ import {
   CLVaultStrategySettings,
   EkuboCLVault,
   SingleActionAmount,
+  RiskType,
 } from '@strkfarm/sdk';
 import MyNumber from '@/utils/MyNumber';
 import { PoolInfo } from '@/store/pools';
@@ -88,10 +89,13 @@ export class EkuboClStrategy extends IStrategy<CLVaultStrategySettings> {
     this.riskFactor = strategy.risk.netRisk;
 
     const risks = [...this.risks];
+    const impermanentLossRiskInfo = this.metadata.risk.riskFactor.find(
+      (risk) => risk.type === RiskType.IMPERMANENT_LOSS,
+    )!;
     this.risks = [
       this.getSafetyFactorLine(),
       'Your original investment is safe. If you deposit 100 tokens, you will always get at least 100 tokens back, unless due to below reasons.',
-      'The deposits are supplied on Ekubo, a concentrated liquidity AMM, which can experience impermanent loss. Though, given this a pool of highly corelated tokens, the chances of a loss are very low.',
+      `The deposits are supplied on Ekubo, a concentrated liquidity AMM, which can experience impermanent loss. ${impermanentLossRiskInfo.value <= 2 ? 'Though, given this a pool of highly corelated tokens, the chances of a loss are very low.' : ''}`,
       // `The strategy tries to keep the position around ${this.metadata.additionalInfo.newBounds.lower} to ${this.metadata.additionalInfo.newBounds.upper} range in tick space to provide maximum utility of the capital, but this can lead to relatively high impermanent loss sometimes`,
       'Sometimes, the strategy may not earn yield for a short period. This happens when its temporarily out of range. During this time, we pause and observe before making any changes. Rebalancing too often could lead to unnecessary fees from withdrawals and swaps on Ekubo, so we try to avoid that unless its really needed.',
       ...risks,
@@ -267,7 +271,12 @@ export class EkuboClStrategy extends IStrategy<CLVaultStrategySettings> {
   };
 
   async solve(pools: PoolInfo[], amount: string) {
-    const yieldInfo = await this.clVault.netAPY('latest', 16000);
+    // for LSTs, we use 30d, else 7d for the yield calculation
+    // TODO Make the block compute more dynamic
+    const blocksDiff = this.metadata.additionalInfo.lstContract
+      ? 600000
+      : 600000 / 4;
+    const yieldInfo = await this.clVault.netAPY('latest', blocksDiff);
     this.netYield = yieldInfo;
     this.leverage = 1;
 
@@ -335,7 +344,11 @@ export class EkuboClStrategy extends IStrategy<CLVaultStrategySettings> {
         queryFn: async ({ queryKey }: any): Promise<BalanceResult> => {
           const bal1 = get(this.balanceAtoms[0]);
           const bal2 = get(this.balanceAtoms[1]);
-          console.log('getSummaryBalanceAtom', bal1.data, bal2.data);
+          console.log(
+            'getSummaryBalanceAtom',
+            bal1.data?.amount.toString(),
+            bal2.data?.amount.toString(),
+          );
           if (
             !bal1.data ||
             !bal2.data ||
@@ -344,7 +357,11 @@ export class EkuboClStrategy extends IStrategy<CLVaultStrategySettings> {
           ) {
             return returnEmptyBal();
           }
-          console.log('getSummaryBalanceAtom [0]', bal1.data, bal2.data);
+          console.log(
+            'getSummaryBalanceAtom [0]',
+            bal1.data?.amount.toString(),
+            bal2.data?.amount.toString(),
+          );
           const bal1Data = bal1.data;
           const bal2Data = bal2.data;
           const amounts: SingleActionAmount[] = [bal1Data, bal2Data].map(
@@ -353,13 +370,16 @@ export class EkuboClStrategy extends IStrategy<CLVaultStrategySettings> {
               tokenInfo: convertToV2TokenInfo(b.tokenInfo!),
             }),
           );
-          console.log('getSummaryBalanceAtom [1]', amounts);
+          console.log(
+            'getSummaryBalanceAtom [1]',
+            amounts.map((amount) => amount.amount.toString()),
+          );
           const amountWeb3Number = await this.computeSummaryValue(
             amounts,
             this.settings.quoteToken,
             'ekubo::summary',
           );
-          console.log('getSummaryBalanceAtom [2]', amountWeb3Number);
+          console.log('getSummaryBalanceAtom [2]', amountWeb3Number.toNumber());
           return {
             amount: convertToMyNumber(amountWeb3Number),
             tokenInfo: convertToV1TokenInfo(this.settings.quoteToken),

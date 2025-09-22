@@ -3,6 +3,7 @@ import {
   IStrategy,
   IStrategyProps,
   StrategyLiveStatus,
+  StrategyTag,
 } from '@/strategies/IStrategy';
 import CONSTANTS from '@/constants';
 import { convertToV2TokenInfo, getTokenInfoFromName } from '@/utils';
@@ -218,6 +219,7 @@ export function getStrategies() {
       isInMaintenance: false,
       isAudited: false,
       isInstantWithdrawal: true,
+      isTransactionHistDisabled: true,
       quoteToken: convertToV2TokenInfo(getTokenInfoFromName('STRK')),
     },
   );
@@ -264,12 +266,14 @@ export function getStrategies() {
     );
   });
 
-  const ekuboCLStrats = [EkuboCLVaultStrategies[0]].map((v) => {
+  const ekuboCLStrats = EkuboCLVaultStrategies.map((v) => {
     return new EkuboClStrategy(
       v.name,
       v.description as ReactNode,
       v,
-      StrategyLiveStatus.ACTIVE,
+      v.curator?.name.toLowerCase().includes('re7')
+        ? StrategyLiveStatus.NEW
+        : StrategyLiveStatus.ACTIVE,
       {
         maxTVL: 0,
         isAudited: v.auditUrl ? true : false,
@@ -284,11 +288,15 @@ export function getStrategies() {
         ],
         isInstantWithdrawal: true,
         quoteToken: convertToV2TokenInfo(
-          getTokenInfoFromName(v.depositTokens[1]?.symbol || ''),
+          getTokenInfoFromName(v.additionalInfo.quoteAsset.symbol),
         ),
-        isTransactionHistDisabled: true,
+        tags: v.additionalInfo.lstContract
+          ? [StrategyTag.EKUBO, StrategyTag.Endur]
+          : [StrategyTag.EKUBO],
       },
     );
+  }).filter((s) => {
+    return s.name != 'Ekubo tBTC/USDC'; // disable for now
   });
 
   const evergreenStrategies = UniversalStrategies.map((uni) => {
@@ -298,7 +306,7 @@ export function getStrategies() {
       uni.name,
       uni.description as ReactNode,
       uni,
-      StrategyLiveStatus.HOT,
+      StrategyLiveStatus.ACTIVE,
       {
         maxTVL: 0,
         isAudited: false,
@@ -310,6 +318,7 @@ export function getStrategies() {
             type: 'info',
           },
         ],
+        tags: [StrategyTag.EVERGREEN],
         hideHarvestInfo: true,
         isInstantWithdrawal: false,
         quoteToken: convertToV2TokenInfo(uni.depositTokens[0]),

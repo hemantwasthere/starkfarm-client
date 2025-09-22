@@ -6,7 +6,11 @@ import { getPoolInfoFromStrategy, sortAtom } from '@/store/protocols';
 import { strategiesAtom } from '@/store/strategies.atoms';
 import { TrovesStrategyAPIResult } from '@/store/troves.atoms';
 import { UserStats, userStatsAtom } from '@/store/utils.atoms';
-import { isLive, StrategyLiveStatus } from '@/strategies/IStrategy';
+import {
+  isLive,
+  StrategyLiveStatus,
+  StrategyTag,
+} from '@/strategies/IStrategy';
 import { MYSTYLES } from '@/style';
 import { getDisplayCurrencyAmount } from '@/utils';
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons';
@@ -40,7 +44,10 @@ export interface YieldCardProps {
   showBalance?: boolean;
 }
 
-export function getStratCardBg(status: StrategyLiveStatus, index: number) {
+export function getStratCardBg(
+  status: StrategyLiveStatus | StrategyTag,
+  index: number,
+) {
   // if (isLive(status)) {
   //   return index % 2 === 0 ? 'mycard_dark' : 'mycard_dark';
   // }
@@ -127,7 +134,7 @@ export function StrategyInfo(props: YieldCardProps) {
                   {tags.map((tag) => {
                     return (
                       <Badge
-                        bg={getStratCardBadgeBg(tag)}
+                        bg={getStratCardBadgeBg(tag as StrategyLiveStatus)}
                         fontFamily={'sans-serif'}
                         padding="4px 8px"
                         textTransform="capitalize"
@@ -352,7 +359,7 @@ export function StrategyTVL(props: YieldCardProps) {
   const isPoolLive =
     pool.additional &&
     pool.additional.tags[0] &&
-    isLive(pool.additional.tags[0]);
+    isLive(pool.additional.tags[0] as StrategyLiveStatus);
 
   return (
     <Box
@@ -382,7 +389,7 @@ export function StrategyBalance(props: YieldCardProps) {
   const isPoolLive =
     pool.additional &&
     pool.additional.tags[0] &&
-    isLive(pool.additional.tags[0]);
+    isLive(pool.additional.tags[0] as StrategyLiveStatus);
 
   return (
     <Box
@@ -395,14 +402,14 @@ export function StrategyBalance(props: YieldCardProps) {
       position={'relative'}
     >
       {!isPoolLive && <Text>-</Text>}
-      {address && isPoolLive && pool.protocol.name === 'Troves' && (
+      {address && isPoolLive && (
         <Tooltip
           label="Your deposits in this Troves strategy"
           {...MYSTYLES.TOOLTIP.STANDARD}
         >
           <>
             <Text fontSize={'14px'} fontWeight={'600'} textAlign={'right'}>
-              ${getDisplayCurrencyAmount(holdingsInfo.usdValue, 0)}
+              ${getDisplayCurrencyAmount(holdingsInfo.usdValue, 2)}
             </Text>
             {holdingsInfo.amount != 0 && (
               <Flex

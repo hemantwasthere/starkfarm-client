@@ -56,12 +56,12 @@ export const CONSTANTS = {
   },
   Troves: {
     BASE_APR_API: '/api/strategies',
-    // BASE_APR_API: 'https://beta.troves.fi/api/strategies',
   },
   MY_SWAP: {
     POOLS_API: '/myswap/data/pools/all.json',
     BASE_APR_API: '/myswap/data/pools',
   },
+  CACHE_SERVER: 'https://cache-server-t2me.onrender.com',
   CONTRACTS: {
     Master: '0x50314707690c31597849ed66a494fb4279dc060f8805f21593f52906846e28e',
     AutoStrkFarm:

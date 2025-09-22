@@ -15,6 +15,7 @@ import { customAtomWithQuery } from '@/utils/customAtomWithQuery';
 import MyNumber from '@/utils/MyNumber';
 import { StrategyLiveStatus } from '@/strategies/IStrategy';
 import fetchWithRetry from '@/utils/fetchWithRetry';
+import CONSTANTS from '@/constants';
 
 export interface VesuPool {
   id: string;
@@ -147,9 +148,9 @@ export class Vesu extends IDapp<VesuPool[]> {
 
   async getBaseAPYs(): Promise<PoolInfo[]> {
     console.log('Fetching Vesu base APYs');
-    const result = await fetchWithRetry('/vesu/pools').then((res) =>
-      res ? res.json() : null,
-    );
+    const result = await fetchWithRetry(
+      `${CONSTANTS.CACHE_SERVER}/vesu/pools`,
+    ).then((res) => (res ? res.json() : null));
     if (!result) return [];
     const poolsData: VesuPool[] = result.data;
 

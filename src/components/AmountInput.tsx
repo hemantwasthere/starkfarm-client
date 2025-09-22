@@ -127,7 +127,7 @@ const AmountInput = forwardRef(
      */
     const maxAmount: MyNumber = useMemo(() => {
       const currentTVL = Number(
-        tvlInfo.data?.amounts[0].amount.toFixed(6) || 0,
+        tvlInfo.data?.amounts[props.index].amount.toFixed(6) || 0,
       );
       const maxAllowed =
         props.isDeposit && props.strategy.settings.maxTVL !== 0
@@ -670,7 +670,10 @@ const AmountInput = forwardRef(
             color="red"
             fontSize={'13px'}
           >
-            Amount must be less than {maxAmount.toEtherToFixedDecimals(2)}
+            Amount must be less than{' '}
+            {maxAmount.toEtherToFixedDecimals(
+              selectedMarket.displayDecimals || 2,
+            )}
           </Text>
         )}
       </Box>
