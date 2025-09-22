@@ -219,6 +219,7 @@ export function getStrategies() {
       isInMaintenance: false,
       isAudited: false,
       isInstantWithdrawal: true,
+      isTransactionHistDisabled: true,
       quoteToken: convertToV2TokenInfo(getTokenInfoFromName('STRK')),
     },
   );
