@@ -271,7 +271,12 @@ export class EkuboClStrategy extends IStrategy<CLVaultStrategySettings> {
   };
 
   async solve(pools: PoolInfo[], amount: string) {
-    const yieldInfo = await this.clVault.netAPY('latest', 16000);
+    // for LSTs, we use 30d, else 7d for the yield calculation
+    // TODO Make the block compute more dynamic
+    const blocksDiff = this.metadata.additionalInfo.lstContract
+      ? 600000
+      : 600000 / 4;
+    const yieldInfo = await this.clVault.netAPY('latest', blocksDiff);
     this.netYield = yieldInfo;
     this.leverage = 1;
 

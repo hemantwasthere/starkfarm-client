@@ -270,7 +270,9 @@ export function getStrategies() {
       v.name,
       v.description as ReactNode,
       v,
-      StrategyLiveStatus.ACTIVE,
+      v.curator?.name.toLowerCase().includes('re7')
+        ? StrategyLiveStatus.NEW
+        : StrategyLiveStatus.ACTIVE,
       {
         maxTVL: 0,
         isAudited: v.auditUrl ? true : false,

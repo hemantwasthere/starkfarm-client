@@ -67,11 +67,18 @@ export async function GET(req: Request, context: any) {
     return resp;
   } catch (err) {
     console.error('Error /api/price/:name', err);
-    return NextResponse.json(
+    const errorResponse = NextResponse.json(
       {},
       {
         status: 500,
       },
     );
+    errorResponse.headers.set(
+      'Cache-Control',
+      'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+    );
+    errorResponse.headers.set('Pragma', 'no-cache');
+    errorResponse.headers.set('Expires', '0');
+    return errorResponse;
   }
 }

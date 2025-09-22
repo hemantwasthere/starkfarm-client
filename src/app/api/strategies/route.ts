@@ -170,12 +170,12 @@ export async function GET(req: Request) {
 
   const _strats = stratsData.sort((a, b) => {
     // sort based on risk factor, live status and apy
-    const aRisk = a.riskFactor;
-    const bRisk = b.riskFactor;
-    const aLive = a.status.number;
-    const bLive = b.status.number;
-    if (aLive !== bLive) return aLive - bLive;
-    if (aRisk !== bRisk) return aRisk - bRisk;
+    // const aRisk = a.riskFactor;
+    // const bRisk = b.riskFactor;
+    // const aLive = a.status.number;
+    // const bLive = b.status.number;
+    // if (aLive !== bLive) return aLive - bLive;
+    // if (aRisk !== bRisk) return aRisk - bRisk;
     return b.apy - a.apy;
   });
 
@@ -194,10 +194,20 @@ export async function GET(req: Request) {
     return response;
   } catch (err) {
     console.error('Error /api/strategies', err);
-    return NextResponse.json({
-      status: false,
-      strategies: [],
-      lastUpdated: new Date().toISOString(),
-    });
+    const errorResponse = NextResponse.json(
+      {
+        status: false,
+        strategies: [],
+        lastUpdated: new Date().toISOString(),
+      },
+      { status: 500 },
+    );
+    errorResponse.headers.set(
+      'Cache-Control',
+      'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+    );
+    errorResponse.headers.set('Pragma', 'no-cache');
+    errorResponse.headers.set('Expires', '0');
+    return errorResponse;
   }
 }
