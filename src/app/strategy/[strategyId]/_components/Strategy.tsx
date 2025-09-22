@@ -136,7 +136,7 @@ function HoldingsAndEarnings({
       width={'100%'}
       justifyContent={'space-between'}
       gap={2}
-      minWidth={'300px'}
+      minWidth={'400px'}
     >
       <Box padding={'16px'} bg="mycard" width={'100%'} borderRadius={'lg'}>
         <Text color={'text_secondary'}>
