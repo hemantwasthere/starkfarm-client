@@ -14,10 +14,8 @@ import {
   TabPanel,
   TabPanels,
   Tabs,
-  Image as ChakraImage,
   TabIndicator,
   Text,
-  Link,
 } from '@chakra-ui/react';
 import { useAccount } from '@starknet-react/core';
 import Autoplay from 'embla-carousel-autoplay';
@@ -26,7 +24,7 @@ import mixpanel from 'mixpanel-browser';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 
-const banner_images = [
+const banner_images: any[] = [
   // {
   //   desktop: '/banners/strkfarm_braavos.svg',
   //   mobile: '/banners/strkfarm_braavos_mobile.svg',
@@ -37,11 +35,11 @@ const banner_images = [
   //   mobile: '/banners/endur_mobile.svg',
   //   link: 'https://endur.fi/r/troves',
   // },
-  {
-    desktop: '/banners/troves_starktember.svg',
-    mobile: '/banners/troves_starktember_mobile.svg',
-    link: 'https://x.com/trovesfi',
-  },
+  // {
+  //   desktop: '/banners/troves_starktember.svg',
+  //   mobile: '/banners/troves_starktember_mobile.svg',
+  //   link: 'https://x.com/trovesfi',
+  // },
 ];
 
 const TABs: {
@@ -168,7 +166,7 @@ export default function Home() {
         </Text>
       </Box>
 
-      <Box className="embla" ref={emblaRef} margin={0} width={'100%'}>
+      {/*<Box className="embla" ref={emblaRef} margin={0} width={'100%'}>
         <Box className="embla__container" cursor={'pointer'}>
           {banner_images.map((banner, index) => (
             <Box
@@ -196,7 +194,7 @@ export default function Home() {
             </Box>
           ))}
         </Box>
-      </Box>
+      </Box>*/}
 
       <TVL />
 
