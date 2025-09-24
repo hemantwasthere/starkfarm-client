@@ -2688,10 +2688,10 @@
     viem "^2.21.1"
     zod "^3.22.4"
 
-"@strkfarm/sdk@1.1.14":
-  version "1.1.14"
-  resolved "https://registry.yarnpkg.com/@strkfarm/sdk/-/sdk-1.1.14.tgz#13da9a7c1962fc529123a0ec476e2015b078dfe0"
-  integrity sha512-fMXgavF9+6QeSzS44ohGWIXAGd1cWFy5push5WQWBHJtyQl7YW4rQ8mtD/fc7jFlsQnilis4ExLqqsDqUGnYKw==
+"@strkfarm/sdk@1.1.15":
+  version "1.1.15"
+  resolved "https://registry.yarnpkg.com/@strkfarm/sdk/-/sdk-1.1.15.tgz#edec95e532b796c60f3c119694e1e0ff12bc00b6"
+  integrity sha512-kgzpFDzLauebEzU4VzgxA/Hr2V2EKr6XCgR2IxN1yewpoDAAv411p52Cx29G6yvjYGjANLXGWGIk4HGwsHHSag==
   dependencies:
     "@avnu/avnu-sdk" "3.0.2"
     "@ericnordelo/strk-merkle-tree" "^1.0.0"
