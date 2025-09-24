@@ -17,8 +17,10 @@ import { DeltaNeutralMMVesuEndur } from '@/strategies/delta_neutral_mm_vesu_endu
 import { Box, Link, Text } from '@chakra-ui/react';
 import {
   EkuboCLVaultStrategies,
+  HyperLSTStrategies,
   SenseiStrategies,
   UniversalStrategies,
+  UniversalStrategy,
   VesuRebalanceStrategies,
 } from '@strkfarm/sdk';
 import { VesuRebalanceStrategy } from '@/strategies/vesu_rebalance';
@@ -26,6 +28,7 @@ import { atomWithQuery } from 'jotai-tanstack-query';
 import { EkuboClStrategy } from '@/strategies/ekubo_cl_vault';
 import { ReactNode } from 'react';
 import { UniversalStrategyClass } from '@/strategies/universal.strat';
+import { HyperLSTStrategy } from '@/strategies/hyper-lst.strat';
 
 export interface StrategyInfo<T> extends IStrategyProps<T> {
   name: string;
@@ -293,6 +296,7 @@ export function getStrategies() {
         tags: v.additionalInfo.lstContract
           ? [StrategyTag.EKUBO, StrategyTag.Endur]
           : [StrategyTag.EKUBO],
+        isTransactionHistDisabled: v.additionalInfo.lstContract ? true : false,
       },
     );
   }).filter((s) => {
@@ -309,7 +313,6 @@ export function getStrategies() {
       StrategyLiveStatus.ACTIVE,
       {
         maxTVL: 0,
-        isAudited: false,
         isPaused: false,
         alerts: [
           {
@@ -318,11 +321,47 @@ export function getStrategies() {
             type: 'info',
           },
         ],
+        isAudited: true,
+        auditUrl:
+          'https://github.com/zenith-security/reports/blob/main/reports/Forge%20-%20Zenith%20Audit%20Report.pdf',
         tags: [StrategyTag.EVERGREEN],
         hideHarvestInfo: true,
         isInstantWithdrawal: false,
         quoteToken: convertToV2TokenInfo(uni.depositTokens[0]),
         showWithdrawalWarningModal: true, // Enable withdrawal warning modal for evergreen strategies
+      },
+      UniversalStrategy,
+    );
+  });
+
+  const hyperLSTStrategies = HyperLSTStrategies.map((hyper) => {
+    const lstToken = hyper.depositTokens[0].symbol;
+    const baseToken = lstToken.replace('x', '');
+    return new HyperLSTStrategy(
+      `hyper_${hyper.depositTokens[0]?.symbol.toLowerCase()}`,
+      getTokenInfoFromName(hyper.depositTokens[0]?.symbol || ''),
+      hyper.name,
+      hyper.description as ReactNode,
+      hyper,
+      StrategyLiveStatus.HOT,
+      {
+        maxTVL: 0,
+        isAudited: true,
+        auditUrl:
+          'https://github.com/zenith-security/reports/blob/main/reports/Forge%20-%20Zenith%20Audit%20Report.pdf',
+        isPaused: false,
+        alerts: [
+          {
+            tab: 'deposit',
+            text: `Pro tip: You can deposit ${baseToken} or ${lstToken} by selecting the token from above dropdown. ${baseToken} is auto-converted to ${lstToken} before depositing`,
+            type: 'info',
+          },
+        ],
+        tags: [StrategyTag.Endur],
+        hideHarvestInfo: true,
+        isInstantWithdrawal: false,
+        quoteToken: convertToV2TokenInfo(hyper.depositTokens[0]),
+        showWithdrawalWarningModal: false, // Enable withdrawal warning modal for evergreen strategies
       },
     );
   });
@@ -350,6 +389,7 @@ export function getStrategies() {
     ...vesuRebalanceStrats,
     ...ekuboCLStrats,
     ...evergreenStrategies,
+    ...hyperLSTStrategies,
     // xSTRKStrategy,
   ];
 
