@@ -1,5 +1,4 @@
 import {
-  AvnuWrapper,
   ContractAddr,
   IStrategyMetadata,
   UniversalLstMultiplierStrategy,
@@ -15,11 +14,6 @@ import {
   TokenInfo,
 } from './IStrategy';
 import { buildStrategyActionHook, DummyStrategyActionHook } from '@/utils';
-import {
-  fetchQuotes,
-  fetchBuildExecuteTransaction,
-  BuildSwapTransaction,
-} from '@avnu/avnu-sdk';
 
 export class HyperLSTStrategy extends UniversalStrategyClass<
   typeof UniversalLstMultiplierStrategy
@@ -51,14 +45,14 @@ export class HyperLSTStrategy extends UniversalStrategyClass<
     if (!address || address == '0x0') {
       return [
         DummyStrategyActionHook([this.asset]),
-        DummyStrategyActionHook([lstUnderlying]),
+        // DummyStrategyActionHook([lstUnderlying]),
       ];
     }
 
     if (amount.isZero()) {
       return [
         buildStrategyActionHook([], [this.asset]),
-        buildStrategyActionHook([], [lstUnderlying]),
+        // buildStrategyActionHook([], [lstUnderlying]),
       ];
     }
 
@@ -72,33 +66,33 @@ export class HyperLSTStrategy extends UniversalStrategyClass<
       ContractAddr.from(address),
     );
 
-    let swapCalls: BuildSwapTransaction | null = null;
-    try {
-      const avnuWrapper = new AvnuWrapper();
-      const quotes = await fetchQuotes({
-        sellTokenAddress: lstUnderlying.address.address,
-        buyTokenAddress: this.universalStrategy.asset().address.address,
-        sellAmount: BigInt(amt.toWei()),
-        takerAddress: address,
-      });
+    // let swapCalls: BuildSwapTransaction | null = null;
+    // try {
+    //   const avnuWrapper = new AvnuWrapper();
+    //   const quotes = await fetchQuotes({
+    //     sellTokenAddress: lstUnderlying.address.address,
+    //     buyTokenAddress: this.universalStrategy.asset().address.address,
+    //     sellAmount: BigInt(amt.toWei()),
+    //     takerAddress: address,
+    //   });
 
-      if (quotes.length == 0) {
-        return [buildStrategyActionHook(calls, [this.asset])];
-      }
-      swapCalls = await fetchBuildExecuteTransaction(
-        quotes[0].quoteId,
-        address,
-        0.01,
-        true,
-      );
-    } catch (error) {
-      console.error('Error fetching quotes', error);
-      return [buildStrategyActionHook(calls, [this.asset])];
-    }
+    //   if (quotes.length == 0) {
+    //     return [buildStrategyActionHook(calls, [this.asset])];
+    //   }
+    //   swapCalls = await fetchBuildExecuteTransaction(
+    //     quotes[0].quoteId,
+    //     address,
+    //     0.01,
+    //     true,
+    //   );
+    // } catch (error) {
+    //   console.error('Error fetching quotes', error);
+    //   return [buildStrategyActionHook(calls, [this.asset])];
+    // }
 
     return [
       buildStrategyActionHook(calls, [this.asset]),
-      buildStrategyActionHook([...swapCalls.calls, ...calls], [lstUnderlying]),
+      // buildStrategyActionHook([...swapCalls.calls, ...calls], [lstUnderlying]),
     ];
   };
 }

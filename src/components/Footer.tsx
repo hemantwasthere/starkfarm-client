@@ -158,7 +158,7 @@ const Footer: React.FC = () => {
           gap="4px"
         >
           <Text fontSize="sm" color="text_subtle">
-            © 2024 Troves. All right reserved.
+            © 2024 Unwrap Labs. All right reserved.
           </Text>
           <Flex align="center" gap={6}>
             <Text

@@ -351,11 +351,11 @@ export function getStrategies() {
           'https://github.com/zenith-security/reports/blob/main/reports/Forge%20-%20Zenith%20Audit%20Report.pdf',
         isPaused: false,
         alerts: [
-          {
-            tab: 'deposit',
-            text: `Pro tip: You can deposit ${baseToken} or ${lstToken} by selecting the token from above dropdown. ${baseToken} is auto-converted to ${lstToken} before depositing`,
-            type: 'info',
-          },
+          // {
+          //   tab: 'deposit',
+          //   text: `Pro tip: You can deposit ${baseToken} or ${lstToken} by selecting the token from above dropdown. ${baseToken} is auto-converted to ${lstToken} before depositing`,
+          //   type: 'info',
+          // },
         ],
         tags: [StrategyTag.Endur],
         hideHarvestInfo: true,
@@ -366,32 +366,29 @@ export function getStrategies() {
     );
   });
 
-  // const xSTRKStrategy = new AutoXSTRKStrategy(
-  //   'Stake STRK',
-  //   'Endur is Starknet's dedicated staking platform, where you can stake STRK to earn staking rewards. This strategy, built on Endur, is an incentivized vault that boosts returns by offering additional rewards. In the future, it may transition to auto-compounding on DeFi Spring, reinvesting rewards for maximum growth. Changes will be announced at least three days in advance on our socials.',
-  //   CONSTANTS.CONTRACTS.AutoxTroves,
-  //   {
-  //     maxTVL: 2000000,
-  //     alerts: [],
-  //     is_promoted: true,
-  //   },
-  // );
-
   // undo
   const strategies: IStrategy<any>[] = [
-    autoStrkStrategy,
-    autoUSDCStrategy,
-    deltaNeutralMMUSDCETH,
-    deltaNeutralMMETHUSDC,
-    deltaNeutralMMSTRKETH,
-    deltaNeutralMMETHUSDCReverse,
-    deltaNeutralxSTRKSTRK,
-    ...vesuRebalanceStrats,
+    // autoStrkStrategy,
+    // autoUSDCStrategy,
+    // deltaNeutralMMUSDCETH,
+    // deltaNeutralMMETHUSDC,
+    // deltaNeutralMMSTRKETH,
+    // deltaNeutralMMETHUSDCReverse,
+    // deltaNeutralxSTRKSTRK,
+    // ...vesuRebalanceStrats,
     ...ekuboCLStrats,
-    ...evergreenStrategies,
+    // ...evergreenStrategies,
     ...hyperLSTStrategies,
     // xSTRKStrategy,
   ];
+
+  // Add BTC tags if applicable
+  strategies
+    .filter((s) => s.name.toLowerCase().includes('btc'))
+    .map((s) => {
+      s.settings.tags?.push(StrategyTag.BTC);
+      return s;
+    });
 
   return strategies;
 }
